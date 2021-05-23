@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"net/http"
 	"strings"
@@ -8,9 +9,15 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	_ "embed"
+
 	"git.sr.ht/~yotam/go-gemini"
 	"github.com/gorilla/mux"
 )
+
+//go:embed static/style.css
+//go:embed static/app.js
+var static embed.FS
 
 var cfg *Cfg
 var indexTemplate *template.Template
@@ -125,8 +132,8 @@ func main() {
 	r := mux.NewRouter()
 
 	// Static files
-	r.PathPrefix(cfg.BaseHREF + "static/").Handler(http.StripPrefix(cfg.BaseHREF+"static/",
-		http.FileServer(http.Dir("static/"))))
+	r.PathPrefix(cfg.BaseHREF + "static/").Handler(http.StripPrefix(cfg.BaseHREF,
+		http.FileServer(http.FS(static))))
 
 	// Application handler
 	r.PathPrefix(cfg.BaseHREF).Handler(&GemPortalHandler{}).Methods("GET")
