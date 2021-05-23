@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Gemportal</title>
+        <link rel="stylesheet" href="{{ .BaseHREF }}static/style.css">
+        <script>var BASE_HREF = '{{ .BaseHREF }}';</script>
+    </head>
+    <body>
+        <h1>Gemportal</h1>
+        <p>
+            <b>Easy</b> Gemini HTTP portal for port {{ .GemDefaultPort }}.
+        </p>
+
+        <form onsubmit="return onSubmit()">
+            <input id="idUrl" type="text" size="50" placeholder="gemini.circumlunar.space/docs/" value="{{ .PrettyPrintGemURL }}" required>
+            <br>
+            <!-- This works, just put a ?unsafe=on behind your URL :-) -->
+            <!--<input id="idUnsafe" type="checkbox" {{ if .DisableTLSChecks }}checked{{ end }}>
+            <label for="idUnsafe">Disable TLS checks <small>(Unsafe)</small></label>-->
+            <br>
+            <button>Fetch</button>
+        </form>
+        <script src="{{ .BaseHREF }}static/app.js" charset="UTF-8"></script>
+
+        {{ if .GemError }}
+        <div class="gem-error">
+            {{ .GemError }}
+        </div>
+        {{ else if .GemContent }}
+        <div class="gem-content">
+            <div class="gem-url">Displaying '{{ .GemURL }}'</div>
+            {{ .GemContent }}
+        </div>
+        {{ end }}
+
+        <footer>
+            <p><a href="https://github.com/JVMerkle/gemportal" target="_blank" rel="noreferrer noopener">Gemportal Source Code</a></p>
+        </footer>
+    </body>
+</html>
