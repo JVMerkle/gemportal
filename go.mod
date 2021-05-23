@@ -1,4 +1,4 @@
-module git.jvmerkle.de/JVMerkle/gemportal
+module github.com/JVMerkle/gemportal
 
 go 1.16
 
