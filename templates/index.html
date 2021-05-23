@@ -15,9 +15,8 @@
         <form onsubmit="return onSubmit()">
             <input id="idUrl" type="text" size="50" placeholder="gemini.circumlunar.space/docs/" value="{{ .PrettyPrintGemURL }}" required>
             <br>
-            <!-- This works, just put a ?unsafe=on behind your URL :-) -->
-            <!--<input id="idUnsafe" type="checkbox" {{ if .DisableTLSChecks }}checked{{ end }}>
-            <label for="idUnsafe">Disable TLS checks <small>(Unsafe)</small></label>-->
+            <input id="idUnsafe" type="checkbox" {{ if .DisableTLSChecks }}checked{{ end }}>
+            <label for="idUnsafe">Disable TLS checks <small>(Unsafe)</small></label>
             <br>
             <button>Fetch</button>
         </form>
