@@ -1,11 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
 	"strings"
 	"text/template"
 
@@ -17,8 +14,6 @@ import (
 
 var cfg *Cfg
 var indexTemplate *template.Template
-var styleCSS []byte
-var scriptJS []byte
 
 func errResp(ctx *GemContext, errorText string, httpStatusCode int) {
 	ctx.w.WriteHeader(httpStatusCode)
@@ -127,9 +122,6 @@ func main() {
 		panic(fmt.Sprintf("error parsing index template: %s", err.Error()))
 	}
 
-	styleCSS = mustReadToMemory("static/style.css")
-	scriptJS = mustReadToMemory("static/app.js")
-
 	r := mux.NewRouter()
 
 	// Static files
@@ -145,16 +137,4 @@ func main() {
 	listen := ":" + cfg.HTTPPort
 	log.Infof("Listening on '%s' with base HREF '%s'", listen, cfg.BaseHREF)
 	log.Fatal(http.ListenAndServe(listen, r))
-}
-
-func mustReadToMemory(name string) []byte {
-	buf := &bytes.Buffer{}
-	if f, err := os.Open(name); err != nil {
-		panic(err)
-	} else {
-		if _, err := io.Copy(buf, f); err != nil {
-			panic(fmt.Sprintf("could not read '%s' to memory: %s", name, err.Error()))
-		}
-	}
-	return buf.Bytes()
 }
