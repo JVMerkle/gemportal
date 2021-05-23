@@ -17,7 +17,10 @@ import (
 
 //go:embed static/style.css
 //go:embed static/app.js
-var static embed.FS
+var staticFS embed.FS
+
+//go:embed templates/index.html
+var templateFS embed.FS
 
 var cfg *Cfg
 var indexTemplate *template.Template
@@ -124,7 +127,7 @@ func main() {
 
 	log.SetLevel(log.Level(cfg.LogLevel))
 
-	indexTemplate, err = template.ParseFiles("templates/index.html")
+	indexTemplate, err = template.ParseFS(templateFS, "templates/index.html")
 	if err != nil {
 		panic(fmt.Sprintf("error parsing index template: %s", err.Error()))
 	}
@@ -133,7 +136,7 @@ func main() {
 
 	// Static files
 	r.PathPrefix(cfg.BaseHREF + "static/").Handler(http.StripPrefix(cfg.BaseHREF,
-		http.FileServer(http.FS(static))))
+		http.FileServer(http.FS(staticFS))))
 
 	// Application handler
 	r.PathPrefix(cfg.BaseHREF).Handler(&GemPortalHandler{}).Methods("GET")
