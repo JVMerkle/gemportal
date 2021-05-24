@@ -1,7 +1,7 @@
 GO = go
 GOBUILD = $(GO) build
 GOCLEAN=$(GO) clean
-GOGET = $(GO) get
+GOMOD = $(GO) mod
 GOVET=$(GO) vet
 
 GITHASH := $(shell git rev-parse --short HEAD)
@@ -33,10 +33,10 @@ run: build
 	./gemportal
 
 build:
-	$(GOBUILD) -o gemportal $(GOFLAGS) ./...
+	$(GOBUILD) -o gemportal $(GOFLAGS) .
 
 get-deps:
-	$(GOGET) ./...
+	$(GOMOD) download
 
 vet:
 	$(GOVET) ./...
