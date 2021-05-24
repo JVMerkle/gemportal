@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"embed"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"text/template"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -13,6 +17,8 @@ import (
 
 	"git.sr.ht/~yotam/go-gemini"
 	"github.com/gorilla/mux"
+	"github.com/patrickmn/go-cache"
+	"github.com/temoto/robotstxt"
 )
 
 const AppVersion = "0.0.1"
@@ -26,6 +32,7 @@ var templateFS embed.FS
 
 var cfg *Cfg
 var indexTemplate *template.Template
+var robotsCache *cache.Cache
 
 func errResp(ctx *GemContext, errorText string, httpStatusCode int) {
 	ctx.w.WriteHeader(httpStatusCode)
@@ -77,6 +84,70 @@ func (gph *GemPortalHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+var (
+	ErrRobotsTxtNotFound = errors.New("robots.txt not found")
+)
+
+// DownloadRobotsTxt downloads the robots.txt of the ctx.GemURL.Host
+func (gph *GemPortalHandler) DownloadRobotsTxt(ctx *GemContext) ([]byte, error) {
+	robotsURL := ctx.GemURL
+	robotsURL.Path = "/robots.txt"
+
+	client := gemini.DefaultClient
+	client.InsecureSkipVerify = true
+
+	res, err := client.Fetch(robotsURL.String())
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.Status == gemini.StatusNotFound {
+		return nil, ErrRobotsTxtNotFound
+	} else if res.Status != gemini.StatusSuccess {
+		return nil, fmt.Errorf("could not retrieve robots.txt (code %d)", res.Status)
+	}
+
+	buf := &bytes.Buffer{}
+	if n, err := io.CopyN(buf, res.Body, 4096); err != nil && !errors.Is(err, io.EOF) {
+		return nil, errors.New("could not retrieve robots.txt due to an io error")
+	} else if n == 4096 {
+		return nil, errors.New("could not retrieve robots.txt because it exceeds the size limit")
+	}
+
+	return buf.Bytes(), nil
+}
+
+// IsWebproxyAllowed checks if the webproxy is allowed to request the
+// resource (ctx.GemURL) as specified in the hosts robots.txt
+func (gph *GemPortalHandler) IsWebproxyAllowed(ctx *GemContext) (bool, error) {
+	var robotBytes []byte
+	var err error
+
+	// Lookup Host (including Port)
+	if val, ok := robotsCache.Get(ctx.GemURL.Host); ok {
+		log.Debugf("Robots cache hit for '%s'", ctx.GemURL.Host)
+		robotBytes = val.([]byte)
+	} else { // Download robots.txt
+		log.Debugf("Robots cache miss for '%s'", ctx.GemURL.Host)
+		robotBytes, err = gph.DownloadRobotsTxt(ctx)
+		if errors.Is(err, ErrRobotsTxtNotFound) {
+			robotBytes = []byte{}
+		} else if err != nil {
+			return false, err
+		}
+		robotsCache.Set(ctx.GemURL.Host, robotBytes, cache.DefaultExpiration)
+	}
+
+	robots, err := robotstxt.FromBytes(robotBytes)
+	if err != nil {
+		robotsCache.Delete(ctx.GemURL.Host)
+		return false, errors.New("unable to parse robots.txt")
+	}
+
+	return robots.TestAgent(ctx.GemURL.Path, "webproxy"), nil
+}
+
 // Handles Gemini2HTML requests
 func (gph *GemPortalHandler) ServeGemini2HTML(ctx *GemContext) {
 
@@ -88,6 +159,15 @@ func (gph *GemPortalHandler) ServeGemini2HTML(ctx *GemContext) {
 		return
 	}
 	ctx.GemURL = *parsedURL
+
+	if allowed, err := gph.IsWebproxyAllowed(ctx); err != nil {
+		errResp(ctx, fmt.Sprintf("Error checking the webproxy permissions: %s", err.Error()), http.StatusBadRequest)
+		log.Error(err)
+		return
+	} else if !allowed {
+		errResp(ctx, "Host does not allow webproxies on this path", http.StatusForbidden)
+		return
+	}
 
 	if values, ok := ctx.r.URL.Query()["unsafe"]; ok && len(values) > 0 && values[0] == "on" {
 		ctx.DisableTLSChecks = true
@@ -133,6 +213,10 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("error parsing index template: %s", err.Error()))
 	}
+
+	// Create a cache with a default expiration time of 24 hours, and which
+	// purges expired items every 12 hours
+	robotsCache = cache.New(24*time.Hour, 12*time.Hour)
 
 	r := mux.NewRouter()
 

@@ -12,7 +12,7 @@ There are HTTP Gemini portals out there already, but sadly they fail to provide 
 - [X] Enable/Disable TLS checks
 - [X] Convert content to HTML
 - [X] Substitute/Prefix URLs in the content
-- [ ] robots.txt support
+- [X] robots.txt support
 
 ## Contributing
 Open a PR or send your patches to info@jvmerkle.de.
