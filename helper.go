@@ -37,7 +37,7 @@ func init() {
 
 // parseGeminiURL parses a Gemini URL in a git.sr.ht/~yotam/go-gemini
 // conform matter.
-func parseGeminiURL(ctx *GemContext, rawURL string) (retURL *url.URL, err error) {
+func parseGeminiURL(ctx *ReqContext, rawURL string) (retURL *url.URL, err error) {
 	// Prepend the gemini scheme
 	if !strings.HasPrefix(rawURL, "gemini://") {
 		rawURL = "gemini://" + rawURL
@@ -84,7 +84,7 @@ func parseGeminiURL(ctx *GemContext, rawURL string) (retURL *url.URL, err error)
 }
 
 // gemResponseToString reads gemtext to a length limited string (30MiB)
-func gemResponseToString(ctx *GemContext, res *gemini.Response) (string, error) {
+func gemResponseToString(ctx *ReqContext, res *gemini.Response) (string, error) {
 	buf := &bytes.Buffer{}
 
 	limit := ctx.GemRespMemLimit
@@ -104,7 +104,7 @@ func gemResponseToString(ctx *GemContext, res *gemini.Response) (string, error) 
 
 // gemResponseToHTML turns Gemtext to safe HTML and rewrites
 // all Gemini URLs to hit the application server.
-func gemResponseToHTML(ctx *GemContext, res *gemini.Response) (string, error) {
+func gemResponseToHTML(ctx *ReqContext, res *gemini.Response) (string, error) {
 
 	s, err := gemResponseToString(ctx, res)
 	if err != nil {

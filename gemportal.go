@@ -41,7 +41,7 @@ func NewGemPortal(cfg *Cfg) *GemPortal {
 
 // Base handler
 func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ctx := NewGemContext(gp.cfg, w, r)
+	ctx := NewReqContext(gp.cfg, w, r)
 
 	// Application root
 	if r.URL.Path == ctx.BaseHREF {
@@ -65,7 +65,8 @@ var (
 )
 
 // DownloadRobotsTxt downloads the robots.txt of the ctx.GemURL.Host
-func (gp *GemPortal) DownloadRobotsTxt(ctx *GemContext) ([]byte, error) {
+// Returns ErrRobotsTxtNotFound if the robots.txt can not be found.
+func (gp *GemPortal) DownloadRobotsTxt(ctx *ReqContext) ([]byte, error) {
 	robotsURL := ctx.GemURL
 	robotsURL.Path = "/robots.txt"
 
@@ -96,7 +97,7 @@ func (gp *GemPortal) DownloadRobotsTxt(ctx *GemContext) ([]byte, error) {
 
 // IsWebproxyAllowed checks if the webproxy is allowed to request the
 // resource (ctx.GemURL) as specified in the hosts robots.txt
-func (gp *GemPortal) IsWebproxyAllowed(ctx *GemContext) (bool, error) {
+func (gp *GemPortal) IsWebproxyAllowed(ctx *ReqContext) (bool, error) {
 	var robotBytes []byte
 	var err error
 
@@ -125,7 +126,7 @@ func (gp *GemPortal) IsWebproxyAllowed(ctx *GemContext) (bool, error) {
 }
 
 // Handles Gemini2HTML requests
-func (gp *GemPortal) ServeGemini2HTML(ctx *GemContext) {
+func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 
 	geminiURL := ctx.r.URL.Path
 
@@ -175,7 +176,7 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *GemContext) {
 	gp.indexTemplate.Execute(ctx.w, ctx)
 }
 
-func (gp *GemPortal) errResp(ctx *GemContext, errorText string, httpStatusCode int) {
+func (gp *GemPortal) errResp(ctx *ReqContext, errorText string, httpStatusCode int) {
 	ctx.w.WriteHeader(httpStatusCode)
 
 	if len(errorText) > 2 {

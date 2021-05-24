@@ -6,7 +6,9 @@ import (
 	"strings"
 )
 
-type GemContext struct {
+// ReqContext holds data required
+// throughout a gemportal request.
+type ReqContext struct {
 	w               http.ResponseWriter
 	r               *http.Request
 	AppVersion      string
@@ -23,8 +25,8 @@ type GemContext struct {
 	GemContent string
 }
 
-func NewGemContext(cfg *Cfg, w http.ResponseWriter, r *http.Request) *GemContext {
-	return &GemContext{
+func NewReqContext(cfg *Cfg, w http.ResponseWriter, r *http.Request) *ReqContext {
+	return &ReqContext{
 		w:               w,
 		r:               r,
 		AppVersion:      cfg.AppVersion,
@@ -35,7 +37,7 @@ func NewGemContext(cfg *Cfg, w http.ResponseWriter, r *http.Request) *GemContext
 	}
 }
 
-func (ctx *GemContext) PrettyPrintGemURL() string {
+func (ctx *ReqContext) PrettyPrintGemURL() string {
 	hostname := ctx.GemURL.Hostname()
 
 	// Something does not seem right...
