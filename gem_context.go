@@ -9,6 +9,8 @@ import (
 type GemContext struct {
 	w               http.ResponseWriter
 	r               *http.Request
+	AppVersion      string
+	AppBuildMeta    string
 	BaseHREF        string
 	GemDefaultPort  string
 	GemRespMemLimit int64
@@ -25,6 +27,8 @@ func NewGemContext(cfg *Cfg, w http.ResponseWriter, r *http.Request) *GemContext
 	return &GemContext{
 		w:               w,
 		r:               r,
+		AppVersion:      cfg.AppVersion,
+		AppBuildMeta:    cfg.AppBuildMeta,
 		BaseHREF:        cfg.BaseHREF,
 		GemDefaultPort:  cfg.GemDefaultPort,
 		GemRespMemLimit: cfg.GemRespMemLimit,

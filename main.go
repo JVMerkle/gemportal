@@ -15,6 +15,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const AppVersion = "0.0.1"
+
 //go:embed static/style.css
 //go:embed static/app.js
 var staticFS embed.FS
@@ -120,7 +122,7 @@ func (gph *GemPortalHandler) ServeGemini2HTML(ctx *GemContext) {
 func main() {
 	var err error
 
-	cfg, err = GetConfig()
+	cfg, err = GetConfig(AppVersion)
 	if err != nil {
 		panic(fmt.Sprintf("error loading config: %s", err.Error()))
 	}

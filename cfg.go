@@ -10,14 +10,23 @@ import (
 )
 
 var (
-	ErrBadLogLevel        = errors.New("bad LOGLEVEL (must be numeric)")
-	ErrBadHTTPPort        = errors.New("bad HTTP_PORT (must be numeric)")
+	ErrLinkerDefsMissing  = errors.New("link time definitions missing (GitHash/Buildtime)")
+	ErrBadLogLevel        = errors.New("LOGLEVEL must be an integer")
+	ErrBadHTTPPort        = errors.New("HTTP_PORT must be an integer")
 	ErrBadBaseHREF        = errors.New("BASE_HREF must begin and end with a slash")
-	ErrBadGemDefaultPort  = errors.New("GEM_DEFAULT_PORT is not an integer")
-	ErrBadGemRespMemLimit = errors.New("GEM_RESP_MEM_LIMIT is not an integer")
+	ErrBadGemDefaultPort  = errors.New("GEM_DEFAULT_PORT must be an integer")
+	ErrBadGemRespMemLimit = errors.New("GEM_RESP_MEM_LIMIT must be an integer")
+)
+
+// Injected with linker flags
+var (
+	gitHash   string
+	buildTime string
 )
 
 type Cfg struct {
+	AppVersion      string // Application version (e.g. 1.13.5)
+	AppBuildMeta    string // Application build meta information (e.g. ae5f03-2021)
 	LogLevel        int    // sirupsen/logrus log level
 	HTTPPort        string // HTTP server port
 	BaseHREF        string // Base HREF for the application (e.g. / or /gemportal/)
@@ -26,8 +35,15 @@ type Cfg struct {
 }
 
 // GetConfig loads and checks the application configuration
-func GetConfig() (*Cfg, error) {
+func GetConfig(appVersion string) (*Cfg, error) {
 	var cfg Cfg
+
+	if len(gitHash) == 0 || len(buildTime) == 0 {
+		return nil, ErrLinkerDefsMissing
+	}
+
+	cfg.AppVersion = appVersion
+	cfg.AppBuildMeta = gitHash + "-" + buildTime
 
 	_ = godotenv.Load()
 

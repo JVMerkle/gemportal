@@ -2,9 +2,18 @@ body {
     text-align: center;
     font-family: 'Courier New', monospace;
 }
+footer {
+    margin-top: 0.5em;
+}
 h3 {
     margin-top: 0.2em;
     margin-bottom: 0.05em;
+}
+input{
+    margin-top: 0.5em;
+}
+button {
+    margin-top: 0.5em;
 }
 .gem-error {
     margin: 2em;
@@ -27,4 +36,13 @@ h3 {
     border-color: grey;
     text-align: left;
     font-family: 'Lucida Console', monospace;
+}
+.version {
+    font-size: 0.8em;
+    color: grey;
+    font-weight: bold;
+}
+.build-meta {
+    font-size: 0.8em;
+    color: lightgrey;
 }

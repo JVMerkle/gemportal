@@ -1,6 +1,6 @@
 FROM golang:1.16.4-alpine3.12 AS builder
 
-RUN apk --no-cache add ca-certificates
+RUN apk --no-cache add ca-certificates make git
 WORKDIR /app
 
 # Download dependencies
@@ -9,7 +9,7 @@ RUN go get ./...
 
 # Build and install
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -ldflags="-w -s" .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
 
 FROM scratch
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
