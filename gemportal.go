@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"git.sr.ht/~yotam/go-gemini"
+	gem "github.com/JVMerkle/gemportal/gemini"
 	"github.com/patrickmn/go-cache"
 	log "github.com/sirupsen/logrus"
 	"github.com/temoto/robotstxt"
@@ -153,7 +154,7 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 	defer res.Body.Close()
 
 	if res.Status != gemini.StatusSuccess {
-		gp.errResp(ctx, fmt.Sprintf("Gemini upstream reported status %d", res.Status), http.StatusBadGateway)
+		gp.errResp(ctx, fmt.Sprintf("Gemini upstream reported '%s' (%d)", gem.StatusText(res.Status), res.Status), http.StatusBadGateway)
 		return
 	}
 
