@@ -60,12 +60,7 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var (
-	ErrRobotsTxtNotFound = errors.New("robots.txt not found")
-)
-
 // DownloadRobotsTxt downloads the robots.txt of the ctx.GemURL.Host
-// Returns ErrRobotsTxtNotFound if the robots.txt can not be found.
 func (gp *GemPortal) DownloadRobotsTxt(ctx *ReqContext) ([]byte, error) {
 	robotsURL := ctx.GemURL
 	robotsURL.Path = "/robots.txt"
@@ -79,9 +74,7 @@ func (gp *GemPortal) DownloadRobotsTxt(ctx *ReqContext) ([]byte, error) {
 	}
 	defer res.Body.Close()
 
-	if res.Status == gemini.StatusNotFound {
-		return nil, ErrRobotsTxtNotFound
-	} else if res.Status != gemini.StatusSuccess {
+	if res.Status != gemini.StatusSuccess {
 		return nil, fmt.Errorf("could not retrieve robots.txt (code %d)", res.Status)
 	}
 
@@ -96,8 +89,10 @@ func (gp *GemPortal) DownloadRobotsTxt(ctx *ReqContext) ([]byte, error) {
 }
 
 // IsWebproxyAllowed checks if the webproxy is allowed to request the
-// resource (ctx.GemURL) as specified in the hosts robots.txt
-func (gp *GemPortal) IsWebproxyAllowed(ctx *ReqContext) (bool, error) {
+// resource (ctx.GemURL) as specified in the hosts robots.txt. If in doubt
+// (e.g. robots.txt can not be retrieved) IsWebproxyAllowed returns true (thus
+// allowing access)
+func (gp *GemPortal) IsWebproxyAllowed(ctx *ReqContext) bool {
 	var robotBytes []byte
 	var err error
 
@@ -108,10 +103,8 @@ func (gp *GemPortal) IsWebproxyAllowed(ctx *ReqContext) (bool, error) {
 	} else { // Download robots.txt
 		log.Debugf("Robots cache miss for '%s'", ctx.GemURL.Host)
 		robotBytes, err = gp.DownloadRobotsTxt(ctx)
-		if errors.Is(err, ErrRobotsTxtNotFound) {
+		if err != nil {
 			robotBytes = []byte{}
-		} else if err != nil {
-			return false, err
 		}
 		gp.robotsCache.Set(ctx.GemURL.Host, robotBytes, cache.DefaultExpiration)
 	}
@@ -119,10 +112,11 @@ func (gp *GemPortal) IsWebproxyAllowed(ctx *ReqContext) (bool, error) {
 	robots, err := robotstxt.FromBytes(robotBytes)
 	if err != nil {
 		gp.robotsCache.Delete(ctx.GemURL.Host)
-		return false, errors.New("unable to parse robots.txt")
+		log.Warnf("Unable to parse robots.txt of '%s'", ctx.GemURL.Host)
+		return true
 	}
 
-	return robots.TestAgent(ctx.GemURL.Path, "webproxy"), nil
+	return robots.TestAgent(ctx.GemURL.Path, "webproxy")
 }
 
 // Handles Gemini2HTML requests
@@ -137,12 +131,8 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 	}
 	ctx.GemURL = *parsedURL
 
-	if allowed, err := gp.IsWebproxyAllowed(ctx); err != nil {
-		gp.errResp(ctx, fmt.Sprintf("Error checking the webproxy permissions: %s", err.Error()), http.StatusBadRequest)
-		log.Error(err)
-		return
-	} else if !allowed {
-		gp.errResp(ctx, "Host does not allow webproxies on this path", http.StatusForbidden)
+	if allowed := gp.IsWebproxyAllowed(ctx); !allowed {
+		gp.errResp(ctx, "The host does not allow webproxies on this path", http.StatusForbidden)
 		return
 	}
 
