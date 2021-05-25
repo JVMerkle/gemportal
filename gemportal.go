@@ -93,27 +93,28 @@ func (gp *GemPortal) DownloadRobotsTxt(ctx *ReqContext) ([]byte, error) {
 // (e.g. robots.txt can not be retrieved) IsWebproxyAllowed returns true (thus
 // allowing access)
 func (gp *GemPortal) IsWebproxyAllowed(ctx *ReqContext) bool {
-	var robotBytes []byte
-	var err error
+	var robots *robotstxt.RobotsData
 
 	// Lookup Host (including Port)
 	if val, ok := gp.robotsCache.Get(ctx.GemURL.Host); ok {
 		log.Debugf("Robots cache hit for '%s'", ctx.GemURL.Host)
-		robotBytes = val.([]byte)
-	} else { // Download robots.txt
+		robots = val.(*robotstxt.RobotsData)
+
+	} else { // Download and parse robots.txt
+
 		log.Debugf("Robots cache miss for '%s'", ctx.GemURL.Host)
-		robotBytes, err = gp.DownloadRobotsTxt(ctx)
+		robotBytes, err := gp.DownloadRobotsTxt(ctx)
 		if err != nil {
 			robotBytes = []byte{}
 		}
-		gp.robotsCache.Set(ctx.GemURL.Host, robotBytes, cache.DefaultExpiration)
-	}
 
-	robots, err := robotstxt.FromBytes(robotBytes)
-	if err != nil {
-		gp.robotsCache.Delete(ctx.GemURL.Host)
-		log.Warnf("Unable to parse robots.txt of '%s'", ctx.GemURL.Host)
-		return true
+		robots, err = robotstxt.FromBytes(robotBytes)
+		if err != nil {
+			gp.robotsCache.Delete(ctx.GemURL.Host)
+			log.Warnf("Unable to parse robots.txt of '%s'", ctx.GemURL.Host)
+		}
+
+		gp.robotsCache.Set(ctx.GemURL.Host, robots, cache.DefaultExpiration)
 	}
 
 	return robots.TestAgent(ctx.GemURL.Path, "webproxy")
