@@ -153,7 +153,10 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 	}
 	defer res.Body.Close()
 
-	if res.Status != gemini.StatusSuccess {
+	if gemini.SimplifyStatus(res.Status) == gemini.StatusRedirect {
+		gp.errResp(ctx, fmt.Sprintf("%s to '%s'", gem.StatusText(res.Status), res.Meta), http.StatusOK)
+		return
+	} else if res.Status != gemini.StatusSuccess {
 		gp.errResp(ctx, fmt.Sprintf("Gemini upstream reported '%s' (%d)", gem.StatusText(res.Status), res.Status), http.StatusBadGateway)
 		return
 	}
