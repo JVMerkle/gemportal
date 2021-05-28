@@ -28,7 +28,7 @@ var urlRegexp *regexp.Regexp
 var hasSchemeRegexp *regexp.Regexp
 
 func init() {
-	urlRegex := `=> ([-a-zA-Z0-9()@:%_\+.~#?&//=]*)`
+	urlRegex := `=>\s+([-a-zA-Z0-9()@:%_\+.~#?&//=]*)`
 	urlRegexp = regexp.MustCompile(urlRegex)
 
 	hasSchemeRegex := `[a-z]+://`
@@ -102,6 +102,34 @@ func gemResponseToString(ctx *ReqContext, res *gemini.Response) (string, error) 
 	return buf.String(), nil
 }
 
+// Builds an absolute gemini URL respecting the current context
+// e.g. "tata/foo.txt" on "gemini://test.com/~nana" => "gemini://test.com/~nana/tata/foo.txt"
+func gemParseURL(ctx *ReqContext, gemURL string) (string, error) {
+	// Check for gemini scheme
+	isAbsolute := false
+	if match := hasSchemeRegexp.FindString(gemURL); len(match) >= 3 {
+		scheme := match[:len(match)-3]
+		if scheme == "gemini" {
+			isAbsolute = true
+		} else {
+			return "", errors.New("not a gemini URL")
+		}
+	}
+
+	if !isAbsolute { // Relative (without scheme)
+		relDir := ""
+		if !strings.HasPrefix(gemURL, "/") {
+			relDir = path.Dir(ctx.GemURL.Path)
+			if !strings.HasSuffix(relDir, "/") {
+				relDir += "/"
+			}
+		}
+		gemURL = "gemini://" + ctx.GemURL.Hostname() + relDir + gemURL
+	}
+
+	return gemURL, nil
+}
+
 // gemResponseToHTML turns Gemtext to safe HTML and rewrites
 // all Gemini URLs to hit the application server.
 func gemResponseToHTML(ctx *ReqContext, res *gemini.Response) (string, error) {
@@ -114,37 +142,20 @@ func gemResponseToHTML(ctx *ReqContext, res *gemini.Response) (string, error) {
 	s = urlRegexp.ReplaceAllStringFunc(s, func(s string) string {
 		oldURL := s
 
-		// Strip "=> " from the RegEx match
-		rawURL := s[3:]
+		// Strip `=>\s+`
+		s = strings.TrimLeft(s[2:], " ")
 
-		// Check for gemini scheme
-		isAbsolute := false
-		if match := hasSchemeRegexp.FindString(rawURL); len(match) >= 3 {
-			scheme := match[:len(match)-3]
-			if scheme == "gemini" {
-				isAbsolute = true
-			} else {
-				// Omit URL
-				return s
-			}
+		gemURL, err := gemParseURL(ctx, s)
+		if err != nil { // Omit URL
+			return s
 		}
 
-		if isAbsolute { // Absolute (with scheme)
-			rawURL = rawURL[len("gemini://"):]
-		} else { // Relative (without scheme)
-			relDir := ""
-			if !strings.HasPrefix(rawURL, "/") {
-				relDir = path.Dir(ctx.GemURL.Path)
-				if !strings.HasSuffix(relDir, "/") {
-					relDir += "/"
-				}
-			}
-			rawURL = ctx.GemURL.Hostname() + relDir + rawURL
-		}
+		// Remove the scheme and leading slashes
+		gemURL = strings.TrimPrefix(gemURL, "gemini://")
+		gemURL = strings.TrimLeft(gemURL, "/")
 
-		// Remove the scheme from the rawURL
 		// Prepend the base HREF
-		newURL := ctx.BaseHREF + rawURL
+		newURL := ctx.BaseHREF + gemURL
 
 		log.Debugf("Rewriting URL from '%s' to '%s'", oldURL, newURL)
 		return "=> " + newURL
