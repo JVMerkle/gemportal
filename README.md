@@ -14,7 +14,7 @@ There are HTTP Gemini portals out there already, but sadly they fail to provide 
 - [X] Convert content to HTML
 - [X] Substitute/Prefix URLs in the content
 - [X] robots.txt support
-- [ ] Follow redirects
+- [X] Follow redirects
 - [ ] Clean up code
 
 ## Contributing
