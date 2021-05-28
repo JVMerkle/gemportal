@@ -11,13 +11,14 @@ import (
 type ReqContext struct {
 	w         http.ResponseWriter
 	r         *http.Request
-	redirects uint
+	redirects uint32
 
-	AppVersion      string
-	AppBuildMeta    string
-	BaseHREF        string
-	GemDefaultPort  string
-	GemRespMemLimit int64
+	AppVersion        string
+	AppBuildMeta      string
+	BaseHREF          string
+	GemDefaultPort    string
+	GemRespMemLimit   int64
+	GemRedirectsLimit uint32
 
 	DisableTLSChecks bool
 
@@ -29,13 +30,14 @@ type ReqContext struct {
 
 func NewReqContext(cfg *Cfg, w http.ResponseWriter, r *http.Request) *ReqContext {
 	return &ReqContext{
-		w:               w,
-		r:               r,
-		AppVersion:      cfg.AppVersion,
-		AppBuildMeta:    cfg.AppBuildMeta,
-		BaseHREF:        cfg.BaseHREF,
-		GemDefaultPort:  cfg.GemDefaultPort,
-		GemRespMemLimit: cfg.GemRespMemLimit,
+		w:                 w,
+		r:                 r,
+		AppVersion:        cfg.AppVersion,
+		AppBuildMeta:      cfg.AppBuildMeta,
+		BaseHREF:          cfg.BaseHREF,
+		GemDefaultPort:    cfg.GemDefaultPort,
+		GemRespMemLimit:   cfg.GemRespMemLimit,
+		GemRedirectsLimit: cfg.GemRedirectsLimit,
 	}
 }
 

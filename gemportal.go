@@ -134,7 +134,7 @@ func (gp *GemPortal) IsWebproxyAllowed(ctx *ReqContext) bool {
 // Handles Gemini2HTML requests
 func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 
-	if ctx.redirects >= 5 {
+	if ctx.redirects >= ctx.GemRedirectsLimit {
 		gp.errResp(ctx, "Too many redirects", http.StatusBadGateway)
 		return
 	}

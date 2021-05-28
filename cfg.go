@@ -10,12 +10,13 @@ import (
 )
 
 var (
-	ErrLinkerDefsMissing  = errors.New("link time definitions missing (GitHash/Buildtime)")
-	ErrBadLogLevel        = errors.New("LOGLEVEL must be an integer")
-	ErrBadHTTPPort        = errors.New("HTTP_PORT must be an integer")
-	ErrBadBaseHREF        = errors.New("BASE_HREF must begin and end with a slash")
-	ErrBadGemDefaultPort  = errors.New("GEM_DEFAULT_PORT must be an integer")
-	ErrBadGemRespMemLimit = errors.New("GEM_RESP_MEM_LIMIT must be an integer")
+	ErrLinkerDefsMissing    = errors.New("link time definitions missing (GitHash/Buildtime)")
+	ErrBadLogLevel          = errors.New("LOGLEVEL must be an integer")
+	ErrBadHTTPPort          = errors.New("HTTP_PORT must be an integer")
+	ErrBadBaseHREF          = errors.New("BASE_HREF must begin and end with a slash")
+	ErrBadGemDefaultPort    = errors.New("GEM_DEFAULT_PORT must be an integer")
+	ErrBadGemRespMemLimit   = errors.New("GEM_RESP_MEM_LIMIT must be an integer")
+	ErrBadGemRedirectsLimit = errors.New("GEM_MAX_REDIRECTS must be an integer")
 )
 
 // Injected with linker flags
@@ -25,13 +26,14 @@ var (
 )
 
 type Cfg struct {
-	AppVersion      string // Application version (e.g. 1.13.5)
-	AppBuildMeta    string // Application build meta information (e.g. ae5f03-2021)
-	LogLevel        int    // sirupsen/logrus log level
-	HTTPPort        string // HTTP server port
-	BaseHREF        string // Base HREF for the application (e.g. / or /gemportal/)
-	GemDefaultPort  string // Default Gemini port
-	GemRespMemLimit int64  // Gemini response limit in bytes
+	AppVersion        string // Application version (e.g. 1.13.5)
+	AppBuildMeta      string // Application build meta information (e.g. ae5f03-2021)
+	LogLevel          int    // sirupsen/logrus log level
+	HTTPPort          string // HTTP server port
+	BaseHREF          string // Base HREF for the application (e.g. / or /gemportal/)
+	GemDefaultPort    string // Default Gemini port
+	GemRespMemLimit   int64  // Gemini response limit in bytes
+	GemRedirectsLimit uint32 // Maximum gemini redirects to follow
 }
 
 // GetConfig loads and checks the application configuration
@@ -85,6 +87,14 @@ func GetConfig(appVersion string) (*Cfg, error) {
 		return nil, ErrBadGemRespMemLimit
 	} else {
 		cfg.GemRespMemLimit = num
+	}
+
+	if value := os.Getenv("GEM_MAX_REDIRECTS"); len(value) == 0 {
+		cfg.GemRedirectsLimit = 5
+	} else if num, err := strconv.ParseUint(value, 10, 32); err != nil {
+		return nil, ErrBadGemRedirectsLimit
+	} else {
+		cfg.GemRedirectsLimit = uint32(num)
 	}
 
 	return &cfg, nil
