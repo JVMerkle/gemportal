@@ -9,8 +9,10 @@ import (
 // ReqContext holds data required
 // throughout a gemportal request.
 type ReqContext struct {
-	w               http.ResponseWriter
-	r               *http.Request
+	w         http.ResponseWriter
+	r         *http.Request
+	redirects uint
+
 	AppVersion      string
 	AppBuildMeta    string
 	BaseHREF        string

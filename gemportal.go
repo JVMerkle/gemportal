@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"text/template"
 	"time"
@@ -57,6 +58,15 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if path == "favicon.ico" {
 		http.NotFound(w, r)
 	} else {
+
+		// Store the requested Gemini URL in the context
+		parsedURL, err := parseGeminiURL(ctx, ctx.r.URL.Path)
+		if err != nil {
+			gp.errResp(ctx, err.Error(), http.StatusBadRequest)
+			return
+		}
+		ctx.GemURL = *parsedURL
+
 		gp.ServeGemini2HTML(ctx)
 	}
 }
@@ -124,14 +134,10 @@ func (gp *GemPortal) IsWebproxyAllowed(ctx *ReqContext) bool {
 // Handles Gemini2HTML requests
 func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 
-	geminiURL := ctx.r.URL.Path
-
-	parsedURL, err := parseGeminiURL(ctx, geminiURL)
-	if err != nil {
-		gp.errResp(ctx, err.Error(), http.StatusBadRequest)
+	if ctx.redirects >= 5 {
+		gp.errResp(ctx, "Too many redirects", http.StatusBadGateway)
 		return
 	}
-	ctx.GemURL = *parsedURL
 
 	if allowed := gp.IsWebproxyAllowed(ctx); !allowed {
 		gp.errResp(ctx, "The host does not allow webproxies on this path", http.StatusForbidden)
@@ -154,7 +160,21 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 	defer res.Body.Close()
 
 	if gemini.SimplifyStatus(res.Status) == gemini.StatusRedirect {
-		gp.errResp(ctx, fmt.Sprintf("%s to '%s'", gem.StatusText(res.Status), res.Meta), http.StatusOK)
+		var redirectGemURL string
+		var newURL *url.URL
+
+		if redirectGemURL, err = gemParseURL(ctx, res.Meta); err == nil {
+			newURL, err = url.Parse(redirectGemURL)
+		}
+
+		if err != nil {
+			gp.errResp(ctx, fmt.Sprintf("Invalid %s to '%s'", gem.StatusText(res.Status), res.Meta), http.StatusBadGateway)
+			return
+		}
+
+		ctx.GemURL = *newURL
+		ctx.redirects += 1
+		gp.ServeGemini2HTML(ctx)
 		return
 	} else if res.Status != gemini.StatusSuccess {
 		gp.errResp(ctx, fmt.Sprintf("Gemini upstream reported '%s' (%d)", gem.StatusText(res.Status), res.Status), http.StatusBadGateway)
