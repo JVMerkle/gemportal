@@ -136,11 +136,6 @@ func (gp *GemPortal) IsWebproxyAllowed(ctx *ReqContext) bool {
 // Handles Gemini2HTML requests
 func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 
-	if ctx.redirects >= gp.cfg.GemRedirectsLimit {
-		gp.errResp(ctx, "Too many redirects", http.StatusBadGateway)
-		return
-	}
-
 	if allowed := gp.IsWebproxyAllowed(ctx); !allowed {
 		gp.errResp(ctx, "The host does not allow webproxies on this path", http.StatusForbidden)
 		return
@@ -162,21 +157,7 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 	defer res.Body.Close()
 
 	if gemini.SimplifyStatus(res.Status) == gemini.StatusRedirect {
-		var redirectGemURL string
-		var newURL *url.URL
-
-		if redirectGemURL, err = gemParseURL(ctx, res.Meta); err == nil {
-			newURL, err = url.Parse(redirectGemURL)
-		}
-
-		if err != nil {
-			gp.errResp(ctx, fmt.Sprintf("Invalid %s to '%s'", gem.StatusText(res.Status), res.Meta), http.StatusBadGateway)
-			return
-		}
-
-		ctx.GemURL = *newURL
-		ctx.redirects += 1
-		gp.ServeGemini2HTML(ctx)
+		gp.redirectHandler(ctx, &res)
 		return
 	} else if res.Status != gemini.StatusSuccess {
 		gp.errResp(ctx, fmt.Sprintf("Gemini upstream reported '%s' (%d)", gem.StatusText(res.Status), res.Status), http.StatusBadGateway)
@@ -191,6 +172,34 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 
 	ctx.GemContent = html
 	gp.indexTemplate.Execute(ctx.w, ctx)
+}
+
+// redirectHandler handles Gemini redirects
+func (gp *GemPortal) redirectHandler(ctx *ReqContext, res *gemini.Response) {
+	if gemini.SimplifyStatus(res.Status) != gemini.StatusRedirect {
+		panic("redirectHandler is intended for 'redirect gemini.Response' only")
+	}
+
+	var newURL *url.URL
+
+	redirectGemURL, err := gemParseURL(ctx, res.Meta)
+	if err == nil {
+		newURL, err = url.Parse(redirectGemURL)
+	}
+
+	if err != nil {
+		gp.errResp(ctx, fmt.Sprintf("Invalid %s to '%s'", gem.StatusText(res.Status), res.Meta), http.StatusBadGateway)
+		return
+	}
+
+	ctx.GemURL = *newURL
+
+	ctx.redirects += 1
+	if ctx.redirects > gp.cfg.GemRedirectsLimit {
+		gp.errResp(ctx, "Too many redirects", http.StatusBadGateway)
+	} else {
+		gp.ServeGemini2HTML(ctx)
+	}
 }
 
 func (gp *GemPortal) errResp(ctx *ReqContext, errorText string, httpStatusCode int) {
