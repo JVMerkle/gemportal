@@ -11,8 +11,10 @@ import (
 	"text/template"
 	"time"
 
+	"code.rocketnine.space/tslocum/gmitohtml/pkg/gmitohtml"
 	"git.sr.ht/~yotam/go-gemini"
 	gem "github.com/JVMerkle/gemportal/gemini"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/patrickmn/go-cache"
 	log "github.com/sirupsen/logrus"
 	"github.com/temoto/robotstxt"
@@ -134,7 +136,7 @@ func (gp *GemPortal) IsWebproxyAllowed(ctx *ReqContext) bool {
 // Handles Gemini2HTML requests
 func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 
-	if ctx.redirects >= ctx.GemRedirectsLimit {
+	if ctx.redirects >= gp.cfg.GemRedirectsLimit {
 		gp.errResp(ctx, "Too many redirects", http.StatusBadGateway)
 		return
 	}
@@ -181,7 +183,7 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 		return
 	}
 
-	html, err := gemResponseToHTML(ctx, &res)
+	html, err := gp.gemResponseToHTML(ctx, &res)
 	if err != nil {
 		gp.errResp(ctx, "Error processing Gemini response", http.StatusInternalServerError)
 		return
@@ -204,4 +206,60 @@ func (gp *GemPortal) errResp(ctx *ReqContext, errorText string, httpStatusCode i
 		log.Warnf("Replying with '%s' on requesting '%s': %s", http.StatusText(httpStatusCode), ctx.GemURL.String(), errorText)
 	}
 	gp.indexTemplate.Execute(ctx.w, ctx)
+}
+
+// gemResponseToString reads gemtext to a length limited string (30MiB)
+func (gp *GemPortal) gemResponseToString(ctx *ReqContext, res *gemini.Response) (string, error) {
+	buf := &bytes.Buffer{}
+
+	limit := gp.cfg.GemRespMemLimit
+
+	n, err := io.CopyN(buf, res.Body, limit)
+	if err != nil && !errors.Is(err, io.EOF) {
+		return "", err
+	}
+
+	if n == limit {
+		log.Warnf("Limit reached (%d bytes) with a Gemini response", limit)
+		return "", ErrGeminiResponseLimit
+	}
+
+	return buf.String(), nil
+}
+
+// gemResponseToHTML turns Gemtext to safe HTML and rewrites
+// all Gemini URLs to hit the application server.
+func (gp *GemPortal) gemResponseToHTML(ctx *ReqContext, res *gemini.Response) (string, error) {
+
+	s, err := gp.gemResponseToString(ctx, res)
+	if err != nil {
+		return "", err
+	}
+
+	s = urlRegexp.ReplaceAllStringFunc(s, func(s string) string {
+		oldURL := s
+
+		// Strip `=>\s+`
+		s = strings.TrimLeft(s[2:], " ")
+
+		gemURL, err := gemParseURL(ctx, s)
+		if err != nil { // Omit URL
+			return oldURL
+		}
+
+		// Remove the scheme and leading slashes
+		gemURL = strings.TrimPrefix(gemURL, "gemini://")
+		gemURL = strings.TrimLeft(gemURL, "/")
+
+		// Prepend the base HREF
+		newURL := ctx.BaseHREF + gemURL
+
+		log.Debugf("Rewriting URL from '%s' to '%s'", oldURL, newURL)
+		return "=> " + newURL
+	})
+
+	maybeUnsafeHTML := gmitohtml.Convert([]byte(s), ctx.GemURL.String())
+	html := bluemonday.UGCPolicy().SanitizeBytes(maybeUnsafeHTML)
+
+	return string(html), nil
 }

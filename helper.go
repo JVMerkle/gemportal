@@ -1,20 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"errors"
-	"io"
 	"net"
 	"net/url"
 	"path"
 	"regexp"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
-
-	"code.rocketnine.space/tslocum/gmitohtml/pkg/gmitohtml"
-	"git.sr.ht/~yotam/go-gemini"
-	"github.com/microcosm-cc/bluemonday"
 )
 
 var ErrInvalidHostName = errors.New("invalid host name")
@@ -83,25 +75,6 @@ func parseGeminiURL(ctx *ReqContext, rawURL string) (retURL *url.URL, err error)
 	return retURL, nil
 }
 
-// gemResponseToString reads gemtext to a length limited string (30MiB)
-func gemResponseToString(ctx *ReqContext, res *gemini.Response) (string, error) {
-	buf := &bytes.Buffer{}
-
-	limit := ctx.GemRespMemLimit
-
-	n, err := io.CopyN(buf, res.Body, limit)
-	if err != nil && !errors.Is(err, io.EOF) {
-		return "", err
-	}
-
-	if n == limit {
-		log.Warnf("Limit reached (%d bytes) with a Gemini response", limit)
-		return "", ErrGeminiResponseLimit
-	}
-
-	return buf.String(), nil
-}
-
 // Builds an absolute gemini URL respecting the current context
 // e.g. "tata/foo.txt" on "gemini://test.com/~nana" => "gemini://test.com/~nana/tata/foo.txt"
 func gemParseURL(ctx *ReqContext, gemURL string) (string, error) {
@@ -128,41 +101,4 @@ func gemParseURL(ctx *ReqContext, gemURL string) (string, error) {
 	}
 
 	return gemURL, nil
-}
-
-// gemResponseToHTML turns Gemtext to safe HTML and rewrites
-// all Gemini URLs to hit the application server.
-func gemResponseToHTML(ctx *ReqContext, res *gemini.Response) (string, error) {
-
-	s, err := gemResponseToString(ctx, res)
-	if err != nil {
-		return "", err
-	}
-
-	s = urlRegexp.ReplaceAllStringFunc(s, func(s string) string {
-		oldURL := s
-
-		// Strip `=>\s+`
-		s = strings.TrimLeft(s[2:], " ")
-
-		gemURL, err := gemParseURL(ctx, s)
-		if err != nil { // Omit URL
-			return s
-		}
-
-		// Remove the scheme and leading slashes
-		gemURL = strings.TrimPrefix(gemURL, "gemini://")
-		gemURL = strings.TrimLeft(gemURL, "/")
-
-		// Prepend the base HREF
-		newURL := ctx.BaseHREF + gemURL
-
-		log.Debugf("Rewriting URL from '%s' to '%s'", oldURL, newURL)
-		return "=> " + newURL
-	})
-
-	maybeUnsafeHTML := gmitohtml.Convert([]byte(s), ctx.GemURL.String())
-	html := bluemonday.UGCPolicy().SanitizeBytes(maybeUnsafeHTML)
-
-	return string(html), nil
 }
