@@ -90,7 +90,7 @@ func GetConfig(appVersion string) (*Cfg, error) {
 	}
 
 	if value := os.Getenv("GEM_MAX_REDIRECTS"); len(value) == 0 {
-		cfg.GemRedirectsLimit = 5
+		cfg.GemRedirectsLimit = 3
 	} else if num, err := strconv.ParseUint(value, 10, 32); err != nil {
 		return nil, ErrBadGemRedirectsLimit
 	} else {
