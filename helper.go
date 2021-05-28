@@ -16,13 +16,9 @@ var ErrInvalidGeminiPort = errors.New("invalid Gemini port")
 var ErrGeminiResponseLimit = errors.New("gemini response limit exceeded")
 var ErrIPsProhibited = errors.New("IP addresses are prohibited")
 
-var urlRegexp *regexp.Regexp
 var hasSchemeRegexp *regexp.Regexp
 
 func init() {
-	urlRegex := `=>\s+([-a-zA-Z0-9()@:%_\+.~#?&//=]*)`
-	urlRegexp = regexp.MustCompile(urlRegex)
-
 	hasSchemeRegex := `[a-z]+://`
 	hasSchemeRegexp = regexp.MustCompile(hasSchemeRegex)
 }

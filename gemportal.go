@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"text/template"
 	"time"
@@ -19,6 +20,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/temoto/robotstxt"
 )
+
+var urlRegexp *regexp.Regexp
+
+func init() {
+	urlRegex := `=> +([-a-zA-Z0-9()@:%_\+.~#?&//=]*)`
+	urlRegexp = regexp.MustCompile(urlRegex)
+}
 
 type GemPortal struct {
 	cfg           *Cfg
@@ -248,7 +256,7 @@ func (gp *GemPortal) gemResponseToHTML(ctx *ReqContext, res *gemini.Response) (s
 	s = urlRegexp.ReplaceAllStringFunc(s, func(s string) string {
 		oldURL := s
 
-		// Strip `=>\s+`
+		// Strip `=> +`
 		s = strings.TrimLeft(s[2:], " ")
 
 		gemURL, err := gemParseURL(ctx, s)
