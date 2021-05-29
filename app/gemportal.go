@@ -58,7 +58,7 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Application root
 	if r.URL.Path == ctx.Cfg.BaseHREF {
-		gp.indexTemplate.Execute(w, ctx)
+		gp.executeIndexTemplate(ctx)
 		return
 	}
 
@@ -180,7 +180,7 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 	}
 
 	ctx.GemContent = html
-	gp.indexTemplate.Execute(ctx.w, ctx)
+	gp.executeIndexTemplate(ctx)
 }
 
 // redirectHandler handles Gemini redirects
@@ -211,6 +211,7 @@ func (gp *GemPortal) redirectHandler(ctx *Context, res *gemini.Response) {
 	}
 }
 
+// errResp writes required error information into the Context and executes the index template
 func (gp *GemPortal) errResp(ctx *Context, errorText string, httpStatusCode int) {
 	ctx.w.WriteHeader(httpStatusCode)
 
@@ -223,7 +224,16 @@ func (gp *GemPortal) errResp(ctx *Context, errorText string, httpStatusCode int)
 	if httpStatusCode >= 500 {
 		log.Warnf("Replying with '%s' on requesting '%s': %s", http.StatusText(httpStatusCode), ctx.GemURL.String(), errorText)
 	}
-	gp.indexTemplate.Execute(ctx.w, ctx)
+	gp.executeIndexTemplate(ctx)
+}
+
+// executeIndexTemplate executes the given Context with the index template.
+// panics if an error occures during template execution.
+func (gp *GemPortal) executeIndexTemplate(ctx *Context) {
+	err := gp.indexTemplate.Execute(ctx.w, ctx)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // gemResponseToString reads gemtext to a length limited string (30MiB)
