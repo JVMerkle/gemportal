@@ -4,7 +4,8 @@ DOCKER ?= docker
 GOBUILD = $(GO) build
 GOCLEAN =$(GO) clean
 GOMOD = $(GO) mod
-GOVET =$(GO) vet
+GOVET = $(GO) vet
+GOFMT = $(GO) fmt
 
 GITHASH := $(shell git rev-parse --short HEAD)
 BUILDTIME := $(shell date -u '+%Y%m%dT%H%M%SZ')
@@ -14,7 +15,7 @@ GOLDFLAGS += -X "github.com/JVMerkle/gemportal/app.buildTime=$(BUILDTIME)"
 GOLDFLAGS += -w -s
 GOFLAGS += -ldflags "$(GOLDFLAGS)"
 
-.PHONY: help run build get-deps vet docker-build docker-run clean
+.PHONY: help run build get-deps vet fmt pull-request docker-build docker-run clean
 
 help:
 	@echo "Makefile for gemportal"
@@ -29,8 +30,10 @@ help:
 	@echo "	clean               Run go clean"
 	@echo "	docker-build        Build the gemportal image"
 	@echo "	docker-run          Run a gemportal container on port 8080"
+	@echo "	fmt                 Run go fmt"
 	@echo "	get-deps            Download the dependencies"
 	@echo "	help                Print this help text"
+	@echo "	pull-request        Check if you changes are ready to be submitted"
 	@echo "	vet                 Run go vet"
 
 run: build
@@ -44,6 +47,12 @@ get-deps:
 
 vet:
 	$(GOVET) ./...
+	
+fmt:
+	$(GOFMT) ./...
+
+pull-request: build fmt vet
+	@echo "Your code looks good!"
 
 docker-build:
 	$(DOCKER) build -t gemportal .
