@@ -13,25 +13,19 @@ type ReqContext struct {
 	r         *http.Request
 	redirects uint32
 
-	AppVersion       string
-	AppBuildMeta     string
-	BaseHREF         string
-	GemDefaultPort   string
-	DisableTLSChecks bool
+	Cfg *Cfg
 
-	GemError   string
-	GemURL     url.URL
-	GemContent string
+	DisableTLSChecks bool
+	GemError         string
+	GemURL           url.URL
+	GemContent       string
 }
 
 func NewReqContext(cfg *Cfg, w http.ResponseWriter, r *http.Request) *ReqContext {
 	return &ReqContext{
-		w:              w,
-		r:              r,
-		AppVersion:     cfg.AppVersion,
-		AppBuildMeta:   cfg.AppBuildMeta,
-		BaseHREF:       cfg.BaseHREF,
-		GemDefaultPort: cfg.DefaultPort,
+		w:   w,
+		r:   r,
+		Cfg: cfg,
 	}
 }
 
@@ -49,7 +43,7 @@ func (ctx *ReqContext) PrettyPrintGemURL() string {
 	}
 
 	var port string
-	if ctx.GemURL.Port() != ctx.GemDefaultPort {
+	if ctx.GemURL.Port() != ctx.Cfg.DefaultPort {
 		port = ":" + ctx.GemURL.Port()
 	}
 

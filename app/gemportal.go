@@ -57,13 +57,13 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := NewReqContext(gp.cfg, w, r)
 
 	// Application root
-	if r.URL.Path == ctx.BaseHREF {
+	if r.URL.Path == ctx.Cfg.BaseHREF {
 		gp.indexTemplate.Execute(w, ctx)
 		return
 	}
 
 	// Remove the base HREF from the requested path
-	ctx.r.URL.Path = r.URL.Path[len(ctx.BaseHREF):]
+	ctx.r.URL.Path = r.URL.Path[len(ctx.Cfg.BaseHREF):]
 	path := ctx.r.URL.Path
 
 	if path == "favicon.ico" {
@@ -270,7 +270,7 @@ func (gp *GemPortal) gemResponseToHTML(ctx *ReqContext, res *gemini.Response) (s
 		gemURL = strings.TrimLeft(gemURL, "/")
 
 		// Prepend the base HREF
-		newURL := ctx.BaseHREF + gemURL
+		newURL := ctx.Cfg.BaseHREF + gemURL
 
 		log.Debugf("Rewriting URL from '%s' to '%s'", oldURL, newURL)
 		return "=> " + newURL

@@ -3,13 +3,13 @@
     <head>
         <meta charset="UTF-8">
         <title>Gemportal</title>
-        <link rel="stylesheet" href="{{ .BaseHREF }}static/style.css">
-        <script>var BASE_HREF = '{{ .BaseHREF }}';</script>
+        <link rel="stylesheet" href="{{ .Cfg.BaseHREF }}static/style.css">
+        <script>var BASE_HREF = '{{ .Cfg.BaseHREF }}';</script>
     </head>
     <body>
         <h1>Gemportal</h1>
         <p>
-            <b>Easy</b> Gemini HTTP portal for port {{ .GemDefaultPort }}.
+            <b>Easy</b> Gemini HTTP portal for port {{ .Cfg.DefaultPort }}.
         </p>
 
         <form onsubmit="return onSubmit()">
@@ -20,7 +20,7 @@
             <br>
             <button>Read</button>
         </form>
-        <script src="{{ .BaseHREF }}static/app.js"></script>
+        <script src="{{ .Cfg.BaseHREF }}static/app.js"></script>
 
         {{ if .GemError }}
         <div class="gem-error">
@@ -36,7 +36,7 @@
         <footer>
             <a href="https://github.com/JVMerkle/gemportal" target="_blank" rel="noreferrer noopener">Gemportal Source Code</a>
             <br>
-            <span class="version">{{ .AppVersion }}</span><span class="build-meta">+{{ .AppBuildMeta }}</span>
+            <span class="version">{{ .Cfg.GetAppVersion }}</span><span class="build-meta">+{{ .Cfg.GetAppBuildMeta }}</span>
         </footer>
     </body>
 </html>

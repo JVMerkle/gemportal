@@ -56,12 +56,12 @@ func parseGeminiURL(ctx *ReqContext, rawURL string) (retURL *url.URL, err error)
 	}*/
 
 	// Check the port
-	if len(retURL.Port()) > 0 && retURL.Port() != ctx.GemDefaultPort {
+	if len(retURL.Port()) > 0 && retURL.Port() != ctx.Cfg.DefaultPort {
 		return nil, ErrInvalidGeminiPort
 	}
 
 	// Override the port anyways
-	retURL.Host = hostname + ":" + ctx.GemDefaultPort
+	retURL.Host = hostname + ":" + ctx.Cfg.DefaultPort
 
 	// Fix the path
 	if len(retURL.Path) == 0 {
