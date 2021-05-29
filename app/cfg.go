@@ -20,14 +20,15 @@ var (
 )
 
 type Cfg struct {
-	appVersion     string `ignored:"true"`                                // Application version (e.g. 1.13.5)
-	appBuildMeta   string `ignored:"true"`                                // Application build meta information (e.g. ae5f03-2021)
-	LogLevel       int    `envconfig:"LOG_LEVEL"      default:"4"`        // sirupsen/logrus log level (log.InfoLevel)
-	HTTPPort       string `envconfig:"HTTP_PORT"      default:"8080"`     // HTTP server port
-	BaseHREF       string `envconfig:"BASE_HREF"      default:"/"`        // Base HREF for the application (e.g. / or /gemportal/)
-	DefaultPort    string `envconfig:"DEFAULT_PORT"   default:"1965"`     // Default Gemini port
-	RespMemLimit   int64  `envconfig:"RESP_MEM_LIMIT" default:"31457280"` // Gemini response limit in bytes (30MiB)
-	RedirectsLimit uint32 `envconfig:"MAX_REDIRECTS"  default:"3"`        // Maximum gemini redirects to follow
+	appVersion     string `ignored:"true"`                                 // Application version (e.g. 1.13.5)
+	appBuildMeta   string `ignored:"true"`                                 // Application build meta information (e.g. ae5f03-2021)
+	AppName        string `envconfig:"APPNAME"        default:"Gemportal"` // Application name
+	LogLevel       int    `envconfig:"LOG_LEVEL"      default:"4"`         // sirupsen/logrus log level (log.InfoLevel)
+	HTTPPort       string `envconfig:"HTTP_PORT"      default:"8080"`      // HTTP server port
+	BaseHREF       string `envconfig:"BASE_HREF"      default:"/"`         // Base HREF for the application (e.g. / or /gemportal/)
+	DefaultPort    string `envconfig:"DEFAULT_PORT"   default:"1965"`      // Default Gemini port
+	RespMemLimit   int64  `envconfig:"RESP_MEM_LIMIT" default:"31457280"`  // Gemini response limit in bytes (30MiB)
+	RedirectsLimit uint32 `envconfig:"MAX_REDIRECTS"  default:"3"`         // Maximum gemini redirects to follow
 }
 
 func (c *Cfg) GetAppVersion() string {

@@ -2,15 +2,13 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Gemportal</title>
+        <title>{{ .Cfg.AppName }}</title>
         <link rel="stylesheet" href="{{ .Cfg.BaseHREF }}static/style.css">
         <script>var BASE_HREF = '{{ .Cfg.BaseHREF }}';</script>
     </head>
     <body>
-        <h1>Gemportal</h1>
-        <p>
-            <b>Easy</b> Gemini HTTP portal for port {{ .Cfg.DefaultPort }}.
-        </p>
+        <h1>{{ .Cfg.AppName }}</h1>
+        <p><b>Easy</b> Gemini HTTP portal for port {{ .Cfg.DefaultPort }}.</p>
 
         <form onsubmit="return onSubmit()">
             <input id="idUrl" type="text" size="50" placeholder="gemini.circumlunar.space/docs/" value="{{ .PrettyPrintGemURL }}" required>
@@ -34,7 +32,7 @@
         {{ end }}
 
         <footer>
-            <a href="https://github.com/JVMerkle/gemportal" target="_blank" rel="noreferrer noopener">Gemportal Source Code</a>
+            <a href="https://github.com/JVMerkle/gemportal" target="_blank" rel="noreferrer noopener">{{ .Cfg.AppName }} Source Code</a>
             <br>
             <span class="version">{{ .Cfg.GetAppVersion }}</span><span class="build-meta">+{{ .Cfg.GetAppBuildMeta }}</span>
         </footer>
