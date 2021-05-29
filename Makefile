@@ -1,12 +1,6 @@
 GO ?= go
 DOCKER ?= docker
 
-GOBUILD = $(GO) build
-GOCLEAN =$(GO) clean
-GOMOD = $(GO) mod
-GOVET = $(GO) vet
-GOFMT = $(GO) fmt
-
 GITHASH := $(shell git rev-parse --short HEAD)
 BUILDTIME := $(shell date -u '+%Y%m%dT%H%M%SZ')
 
@@ -40,16 +34,16 @@ run: build
 	./gemportal
 
 build:
-	$(GOBUILD) -o gemportal $(GOFLAGS) .
+	$(GO) build -o gemportal $(GOFLAGS) .
 
 get-deps:
-	$(GOMOD) download
+	$(GO) mod download
 
 vet:
-	$(GOVET) ./...
+	$(GO) vet ./...
 	
 fmt:
-	$(GOFMT) ./...
+	$(GO) fmt ./...
 
 pull-request: build fmt vet
 	@echo "Your code looks good!"
@@ -61,4 +55,4 @@ docker-run: docker-build
 	$(DOCKER) run --rm -it -p8080:8080 gemportal
 
 clean:
-	@$(GOCLEAN)
+	@$(GO) clean
