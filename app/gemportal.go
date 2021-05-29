@@ -14,9 +14,9 @@ import (
 	"time"
 
 	"code.rocketnine.space/tslocum/gmitohtml/pkg/gmitohtml"
-	"git.sr.ht/~yotam/go-gemini"
 	"github.com/JVMerkle/gemportal/app/cfg"
 	gem "github.com/JVMerkle/gemportal/gemini"
+	"github.com/makeworld-the-better-one/go-gemini"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/patrickmn/go-cache"
 	log "github.com/sirupsen/logrus"
@@ -89,7 +89,7 @@ func (gp *GemPortal) DownloadRobotsTxt(ctx *ReqContext) ([]byte, error) {
 	robotsURL.Path = "/robots.txt"
 
 	client := gemini.DefaultClient
-	client.InsecureSkipVerify = true
+	client.Insecure = true
 
 	res, err := client.Fetch(robotsURL.String())
 	if err != nil {
@@ -157,7 +157,7 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 
 	client := gemini.DefaultClient
 	if ctx.DisableTLSChecks {
-		client.InsecureSkipVerify = true
+		client.Insecure = true
 	}
 	res, err := client.Fetch(ctx.GemURL.String())
 	if err != nil {
@@ -167,14 +167,14 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 	defer res.Body.Close()
 
 	if gemini.SimplifyStatus(res.Status) == gemini.StatusRedirect {
-		gp.redirectHandler(ctx, &res)
+		gp.redirectHandler(ctx, res)
 		return
 	} else if res.Status != gemini.StatusSuccess {
 		gp.errResp(ctx, fmt.Sprintf("Gemini upstream reported '%s' (%d)", gem.StatusText(res.Status), res.Status), http.StatusBadGateway)
 		return
 	}
 
-	html, err := gp.gemResponseToHTML(ctx, &res)
+	html, err := gp.gemResponseToHTML(ctx, res)
 	if err != nil {
 		gp.errResp(ctx, "Error processing Gemini response", http.StatusInternalServerError)
 		return
