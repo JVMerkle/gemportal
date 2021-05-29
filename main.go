@@ -23,10 +23,10 @@ var staticFS embed.FS
 var templateFS embed.FS
 
 type CatchAllHandler struct {
-	cfg *app.Cfg
+	cfg app.Cfg
 }
 
-func NewCatchAllHandler(cfg *app.Cfg) *CatchAllHandler {
+func NewCatchAllHandler(cfg app.Cfg) *CatchAllHandler {
 	return &CatchAllHandler{
 		cfg: cfg,
 	}
@@ -48,8 +48,8 @@ func main() {
 
 	log.SetLevel(log.Level(cfg.LogLevel))
 
-	gemPortal := app.NewGemPortal(cfg, templateFS)
-	catchAllHandler := NewCatchAllHandler(cfg)
+	gemPortal := app.NewGemPortal(*cfg, templateFS)
+	catchAllHandler := NewCatchAllHandler(*cfg)
 
 	r := mux.NewRouter()
 
