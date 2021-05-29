@@ -1,9 +1,11 @@
-package main
+package app
 
 import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/JVMerkle/gemportal/app/cfg"
 )
 
 // ReqContext holds data required
@@ -24,7 +26,7 @@ type ReqContext struct {
 	GemContent string
 }
 
-func NewReqContext(cfg *Cfg, w http.ResponseWriter, r *http.Request) *ReqContext {
+func NewReqContext(cfg *cfg.Cfg, w http.ResponseWriter, r *http.Request) *ReqContext {
 	return &ReqContext{
 		w:              w,
 		r:              r,

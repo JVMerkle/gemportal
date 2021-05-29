@@ -9,6 +9,8 @@ import (
 
 	_ "embed"
 
+	"github.com/JVMerkle/gemportal/app"
+	"github.com/JVMerkle/gemportal/app/cfg"
 	"github.com/gorilla/mux"
 )
 
@@ -18,11 +20,14 @@ const AppVersion = "0.0.3"
 //go:embed static/app.js
 var staticFS embed.FS
 
+//go:embed templates/index.html
+var templateFS embed.FS
+
 type CatchAllHandler struct {
-	cfg *Cfg
+	cfg *cfg.Cfg
 }
 
-func NewCatchAllHandler(cfg *Cfg) *CatchAllHandler {
+func NewCatchAllHandler(cfg *cfg.Cfg) *CatchAllHandler {
 	return &CatchAllHandler{
 		cfg: cfg,
 	}
@@ -37,14 +42,14 @@ func (cah *CatchAllHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	cfg, err := GetConfig(AppVersion)
+	cfg, err := cfg.GetConfig(AppVersion)
 	if err != nil {
 		panic(fmt.Sprintf("error loading config: %s", err.Error()))
 	}
 
 	log.SetLevel(log.Level(cfg.LogLevel))
 
-	gemPortal := NewGemPortal(cfg)
+	gemPortal := app.NewGemPortal(cfg, templateFS)
 	catchAllHandler := NewCatchAllHandler(cfg)
 
 	r := mux.NewRouter()

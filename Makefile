@@ -9,8 +9,8 @@ GOVET =$(GO) vet
 GITHASH := $(shell git rev-parse --short HEAD)
 BUILDTIME := $(shell date -u '+%Y%m%dT%H%M%SZ')
 
-GOLDFLAGS += -X main.gitHash=$(GITHASH)
-GOLDFLAGS += -X main.buildTime=$(BUILDTIME)
+GOLDFLAGS += -X "github.com/JVMerkle/gemportal/app/cfg.gitHash=$(GITHASH)"
+GOLDFLAGS += -X "github.com/JVMerkle/gemportal/app/cfg.buildTime=$(BUILDTIME)"
 GOLDFLAGS += -w -s
 GOFLAGS += -ldflags "$(GOLDFLAGS)"
 

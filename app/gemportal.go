@@ -1,11 +1,11 @@
-package main
+package app
 
 import (
 	"bytes"
-	"embed"
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -15,15 +15,13 @@ import (
 
 	"code.rocketnine.space/tslocum/gmitohtml/pkg/gmitohtml"
 	"git.sr.ht/~yotam/go-gemini"
+	"github.com/JVMerkle/gemportal/app/cfg"
 	gem "github.com/JVMerkle/gemportal/gemini"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/patrickmn/go-cache"
 	log "github.com/sirupsen/logrus"
 	"github.com/temoto/robotstxt"
 )
-
-//go:embed templates/index.html
-var templateFS embed.FS
 
 var urlRegexp *regexp.Regexp
 
@@ -33,12 +31,12 @@ func init() {
 }
 
 type GemPortal struct {
-	cfg           *Cfg
+	cfg           *cfg.Cfg
 	robotsCache   *cache.Cache
 	indexTemplate *template.Template
 }
 
-func NewGemPortal(cfg *Cfg) *GemPortal {
+func NewGemPortal(cfg *cfg.Cfg, templateFS fs.FS) *GemPortal {
 	// Create a cache with a default expiration time of 24 hours, and which
 	// purges expired items every 12 hours
 	robotsCache := cache.New(24*time.Hour, 12*time.Hour)
