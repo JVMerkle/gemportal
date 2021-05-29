@@ -29,8 +29,8 @@ help:
 	@echo "	clean               Run go clean"
 	@echo "	docker-build        Build the gemportal image"
 	@echo "	docker-run          Run a gemportal container on port 8080"
-	@echo "	help                Print this help text"
 	@echo "	get-deps            Download the dependencies"
+	@echo "	help                Print this help text"
 	@echo "	vet                 Run go vet"
 
 run: build
