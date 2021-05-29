@@ -22,24 +22,6 @@ var staticFS embed.FS
 //go:embed templates/index.html
 var templateFS embed.FS
 
-type CatchAllHandler struct {
-	cfg app.Cfg
-}
-
-func NewCatchAllHandler(cfg app.Cfg) *CatchAllHandler {
-	return &CatchAllHandler{
-		cfg: cfg,
-	}
-}
-
-func (cah *CatchAllHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Redirect(w, r, cah.cfg.BaseHREF, http.StatusSeeOther)
-	} else {
-		http.Redirect(w, r, cah.cfg.BaseHREF, http.StatusPermanentRedirect)
-	}
-}
-
 func main() {
 	cfg, err := app.GetConfig(AppVersion)
 	if err != nil {
@@ -49,7 +31,14 @@ func main() {
 	log.SetLevel(log.Level(cfg.LogLevel))
 
 	gemPortal := app.NewGemPortal(*cfg, templateFS)
-	catchAllHandler := NewCatchAllHandler(*cfg)
+
+	catchAllHandleFunc := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Redirect(w, r, cfg.BaseHREF, http.StatusSeeOther)
+		} else {
+			http.Redirect(w, r, cfg.BaseHREF, http.StatusPermanentRedirect)
+		}
+	}
 
 	r := mux.NewRouter()
 	r.Use(PanicMiddleware)
@@ -62,7 +51,7 @@ func main() {
 	r.PathPrefix(cfg.BaseHREF).Handler(gemPortal).Methods("GET")
 
 	// Catch-all (e.g. empty path)
-	r.PathPrefix("/").Handler(catchAllHandler)
+	r.PathPrefix("/").HandlerFunc(catchAllHandleFunc)
 
 	listen := ":" + cfg.HTTPPort
 	log.Infof("Listening on '%s' with base HREF '%s'", listen, cfg.BaseHREF)
