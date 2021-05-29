@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"code.rocketnine.space/tslocum/gmitohtml/pkg/gmitohtml"
-	gem "github.com/JVMerkle/gemportal/gemini"
 	"github.com/makeworld-the-better-one/go-gemini"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/patrickmn/go-cache"
@@ -169,7 +168,7 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 		gp.redirectHandler(ctx, res)
 		return
 	} else if res.Status != gemini.StatusSuccess {
-		gp.errResp(ctx, fmt.Sprintf("Gemini upstream reported '%s' (%d)", gem.StatusText(res.Status), res.Status), http.StatusBadGateway)
+		gp.errResp(ctx, fmt.Sprintf("Gemini upstream reported '%s' (%d)", gemini.StatusText(res.Status), res.Status), http.StatusBadGateway)
 		return
 	}
 
@@ -197,7 +196,7 @@ func (gp *GemPortal) redirectHandler(ctx *Context, res *gemini.Response) {
 	}
 
 	if err != nil {
-		gp.errResp(ctx, fmt.Sprintf("Invalid %s to '%s'", gem.StatusText(res.Status), res.Meta), http.StatusBadGateway)
+		gp.errResp(ctx, fmt.Sprintf("Invalid %s to '%s'", gemini.StatusText(res.Status), res.Meta), http.StatusBadGateway)
 		return
 	}
 
