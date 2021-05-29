@@ -21,7 +21,7 @@ var (
 type Cfg struct {
 	AppVersion     string `ignored:"true"`                                    // Application version (e.g. 1.13.5)
 	AppBuildMeta   string `ignored:"true"`                                    // Application build meta information (e.g. ae5f03-2021)
-	LogLevel       int    `envconfig:"LOGLEVEL" default:"4"`                  // sirupsen/logrus log level (log.InfoLevel)
+	LogLevel       int    `envconfig:"LOG_LEVEL" default:"4"`                 // sirupsen/logrus log level (log.InfoLevel)
 	HTTPPort       string `envconfig:"HTTP_PORT" default:"8080"`              // HTTP server port
 	BaseHREF       string `envconfig:"BASE_HREF" default:"/"`                 // Base HREF for the application (e.g. / or /gemportal/)
 	DefaultPort    string `envconfig:"GEM_DEFAULT_PORT" default:"1965"`       // Default Gemini port
