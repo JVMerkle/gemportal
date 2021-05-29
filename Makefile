@@ -1,8 +1,10 @@
-GO = go
+GO ?= go
+DOCKER ?= docker
+
 GOBUILD = $(GO) build
-GOCLEAN=$(GO) clean
+GOCLEAN =$(GO) clean
 GOMOD = $(GO) mod
-GOVET=$(GO) vet
+GOVET =$(GO) vet
 
 GITHASH := $(shell git rev-parse --short HEAD)
 BUILDTIME := $(shell date -u '+%Y%m%dT%H%M%SZ')
@@ -12,7 +14,7 @@ GOLDFLAGS += -X main.buildTime=$(BUILDTIME)
 GOLDFLAGS += -w -s
 GOFLAGS += -ldflags "$(GOLDFLAGS)"
 
-.PHONY: help run build get-deps clean
+.PHONY: help run build get-deps vet docker-build docker-run clean
 
 help:
 	@echo "Makefile for gemportal"
@@ -25,6 +27,8 @@ help:
 	@echo ""
 	@echo "	build               Build the package"
 	@echo "	clean               Run go clean"
+	@echo "	docker-build        Build the gemportal image"
+	@echo "	docker-run          Run a gemportal container on port 8080"
 	@echo "	help                Print this help text"
 	@echo "	get-deps            Download the dependencies"
 	@echo "	vet                 Run go vet"
@@ -40,6 +44,12 @@ get-deps:
 
 vet:
 	$(GOVET) ./...
+
+docker-build:
+	$(DOCKER) build -t gemportal .
+
+docker-run: docker-build
+	$(DOCKER) run --rm -it -p8080:8080 gemportal
 
 clean:
 	@$(GOCLEAN)
