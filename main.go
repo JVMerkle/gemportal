@@ -52,8 +52,8 @@ func main() {
 	// Catch-all (e.g. empty path)
 	r.PathPrefix("/").HandlerFunc(catchAllHandleFunc)
 
-	listen := ":" + cfg.HTTPPort
-	log.Infof("Listening on '%s' with base HREF '%s'", listen, cfg.BaseHREF)
+	listen := "0.0.0.0:" + cfg.HTTPPort
+	log.Infof("Listening on '%s'", listen+cfg.BaseHREF)
 	log.Fatal(http.ListenAndServe(listen, r))
 }
 
