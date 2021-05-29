@@ -8,12 +8,11 @@ A lot of proxy setups (e.g. the one in my company) love to block ports they don'
 
 There are HTTP Gemini portals out there already, but sadly they fail to provide their source code and/or a proper license.
 
-## Features and TODOs
+## Features
 - [X] Variable base HREF support
 - [X] Enable/Disable TLS checks
 - [X] Follow redirects
-- [X] robots.txt support
-- [ ] Clean up code
+- [X] Respect robots.txt's
 
 ## Contributing
 Open a PR or send your patches to me@jvmerkle.de.
