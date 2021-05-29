@@ -32,9 +32,8 @@
         {{ end }}
 
         <footer>
-            <a href="https://github.com/JVMerkle/gemportal" target="_blank" rel="noreferrer noopener">{{ .Cfg.AppName }} Source Code</a>
-            <br>
-            <span class="version">{{ .Cfg.GetAppVersion }}</span><span class="build-meta">+{{ .Cfg.GetAppBuildMeta }}</span>
+            <a href="https://github.com/JVMerkle/gemportal" title="Source Code" target="_blank" rel="noreferrer noopener">{{ .Cfg.AppName }}</a>
+            <span class="version" title="{{ .Cfg.GetAppVersion }}+{{ .Cfg.GetAppBuildMeta }}">v{{ .Cfg.GetAppVersion }}</span>
         </footer>
     </body>
 </html>

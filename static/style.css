@@ -3,7 +3,8 @@ body {
     font-family: 'Courier New', monospace;
 }
 footer {
-    margin-top: 0.5em;
+    margin-top: 1em;
+    font-size: 0.8em;
 }
 h3 {
     margin-top: 0.2em;
@@ -38,11 +39,6 @@ button {
     font-family: 'Lucida Console', monospace;
 }
 .version {
-    font-size: 0.8em;
-    color: grey;
+    color: black;
     font-weight: bold;
-}
-.build-meta {
-    font-size: 0.8em;
-    color: lightgrey;
 }
