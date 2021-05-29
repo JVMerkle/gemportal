@@ -204,7 +204,7 @@ func (gp *GemPortal) redirectHandler(ctx *ReqContext, res *gemini.Response) {
 	ctx.GemURL = *newURL
 
 	ctx.redirects += 1
-	if ctx.redirects > gp.cfg.GemRedirectsLimit {
+	if ctx.redirects > gp.cfg.RedirectsLimit {
 		gp.errResp(ctx, "Too many redirects", http.StatusBadGateway)
 	} else {
 		gp.ServeGemini2HTML(ctx)
@@ -230,7 +230,7 @@ func (gp *GemPortal) errResp(ctx *ReqContext, errorText string, httpStatusCode i
 func (gp *GemPortal) gemResponseToString(ctx *ReqContext, res *gemini.Response) (string, error) {
 	buf := &bytes.Buffer{}
 
-	limit := gp.cfg.GemRespMemLimit
+	limit := gp.cfg.RespMemLimit
 
 	n, err := io.CopyN(buf, res.Body, limit)
 	if err != nil && !errors.Is(err, io.EOF) {

@@ -31,7 +31,7 @@ func NewReqContext(cfg *Cfg, w http.ResponseWriter, r *http.Request) *ReqContext
 		AppVersion:     cfg.AppVersion,
 		AppBuildMeta:   cfg.AppBuildMeta,
 		BaseHREF:       cfg.BaseHREF,
-		GemDefaultPort: cfg.GemDefaultPort,
+		GemDefaultPort: cfg.DefaultPort,
 	}
 }
 
