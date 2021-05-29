@@ -9,7 +9,7 @@ import (
 
 var (
 	ErrLinkerDefsMissing = errors.New("link time definitions missing (GitHash/Buildtime)")
-	ErrBadBaseHREF       = errors.New("BASE_HREF must begin and end with a slash")
+	ErrBadBaseHREF       = errors.New("base HREF must begin and end with a slash")
 )
 
 // Injected with linker flags
