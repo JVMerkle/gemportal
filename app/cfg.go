@@ -21,9 +21,9 @@ var (
 type Cfg struct {
 	AppVersion     string `ignored:"true"`                                    // Application version (e.g. 1.13.5)
 	AppBuildMeta   string `ignored:"true"`                                    // Application build meta information (e.g. ae5f03-2021)
-	LogLevel       int    `envconfig:"LOG_LEVEL" default:"4"`                 // sirupsen/logrus log level (log.InfoLevel)
-	HTTPPort       string `envconfig:"HTTP_PORT" default:"8080"`              // HTTP server port
-	BaseHREF       string `envconfig:"BASE_HREF" default:"/"`                 // Base HREF for the application (e.g. / or /gemportal/)
+	LogLevel       int    `envconfig:"GEM_LOG_LEVEL" default:"4"`             // sirupsen/logrus log level (log.InfoLevel)
+	HTTPPort       string `envconfig:"GEM_HTTP_PORT" default:"8080"`          // HTTP server port
+	BaseHREF       string `envconfig:"GEM_BASE_HREF" default:"/"`             // Base HREF for the application (e.g. / or /gemportal/)
 	DefaultPort    string `envconfig:"GEM_DEFAULT_PORT" default:"1965"`       // Default Gemini port
 	RespMemLimit   int64  `envconfig:"GEM_RESP_MEM_LIMIT" default:"31457280"` // Gemini response limit in bytes (30MiB)
 	RedirectsLimit uint32 `envconfig:"GEM_MAX_REDIRECTS" default:"3"`         // Maximum gemini redirects to follow
