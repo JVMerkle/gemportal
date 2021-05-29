@@ -54,7 +54,7 @@ func NewGemPortal(cfg *Cfg, templateFS fs.FS) *GemPortal {
 
 // Base handler
 func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ctx := NewReqContext(gp.cfg, w, r)
+	ctx := NewContext(gp.cfg, w, r)
 
 	// Application root
 	if r.URL.Path == ctx.Cfg.BaseHREF {
@@ -83,7 +83,7 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // DownloadRobotsTxt downloads the robots.txt of the ctx.GemURL.Host
-func (gp *GemPortal) DownloadRobotsTxt(ctx *ReqContext) ([]byte, error) {
+func (gp *GemPortal) DownloadRobotsTxt(ctx *Context) ([]byte, error) {
 	robotsURL := ctx.GemURL
 	robotsURL.Path = "/robots.txt"
 
@@ -114,7 +114,7 @@ func (gp *GemPortal) DownloadRobotsTxt(ctx *ReqContext) ([]byte, error) {
 // resource (ctx.GemURL) as specified in the hosts robots.txt. If in doubt
 // (e.g. robots.txt can not be retrieved) IsWebproxyAllowed returns true (thus
 // allowing access)
-func (gp *GemPortal) IsWebproxyAllowed(ctx *ReqContext) bool {
+func (gp *GemPortal) IsWebproxyAllowed(ctx *Context) bool {
 	var robots *robotstxt.RobotsData
 
 	// Lookup Host (including Port)
@@ -143,7 +143,7 @@ func (gp *GemPortal) IsWebproxyAllowed(ctx *ReqContext) bool {
 }
 
 // Handles Gemini2HTML requests
-func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
+func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 
 	if allowed := gp.IsWebproxyAllowed(ctx); !allowed {
 		gp.errResp(ctx, "The host does not allow webproxies on this path", http.StatusForbidden)
@@ -184,7 +184,7 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *ReqContext) {
 }
 
 // redirectHandler handles Gemini redirects
-func (gp *GemPortal) redirectHandler(ctx *ReqContext, res *gemini.Response) {
+func (gp *GemPortal) redirectHandler(ctx *Context, res *gemini.Response) {
 	if gemini.SimplifyStatus(res.Status) != gemini.StatusRedirect {
 		panic("redirectHandler is intended for 'redirect gemini.Response' only")
 	}
@@ -211,7 +211,7 @@ func (gp *GemPortal) redirectHandler(ctx *ReqContext, res *gemini.Response) {
 	}
 }
 
-func (gp *GemPortal) errResp(ctx *ReqContext, errorText string, httpStatusCode int) {
+func (gp *GemPortal) errResp(ctx *Context, errorText string, httpStatusCode int) {
 	ctx.w.WriteHeader(httpStatusCode)
 
 	if len(errorText) > 2 {
@@ -227,7 +227,7 @@ func (gp *GemPortal) errResp(ctx *ReqContext, errorText string, httpStatusCode i
 }
 
 // gemResponseToString reads gemtext to a length limited string (30MiB)
-func (gp *GemPortal) gemResponseToString(ctx *ReqContext, res *gemini.Response) (string, error) {
+func (gp *GemPortal) gemResponseToString(ctx *Context, res *gemini.Response) (string, error) {
 	buf := &bytes.Buffer{}
 
 	limit := gp.cfg.RespMemLimit
@@ -247,7 +247,7 @@ func (gp *GemPortal) gemResponseToString(ctx *ReqContext, res *gemini.Response) 
 
 // gemResponseToHTML turns Gemtext to safe HTML and rewrites
 // all Gemini URLs to hit the application server.
-func (gp *GemPortal) gemResponseToHTML(ctx *ReqContext, res *gemini.Response) (string, error) {
+func (gp *GemPortal) gemResponseToHTML(ctx *Context, res *gemini.Response) (string, error) {
 
 	s, err := gp.gemResponseToString(ctx, res)
 	if err != nil {

@@ -25,7 +25,7 @@ func init() {
 
 // parseGeminiURL parses a Gemini URL in a git.sr.ht/~yotam/go-gemini
 // conform matter.
-func parseGeminiURL(ctx *ReqContext, rawURL string) (retURL *url.URL, err error) {
+func parseGeminiURL(ctx *Context, rawURL string) (retURL *url.URL, err error) {
 	// Prepend the gemini scheme
 	if !strings.HasPrefix(rawURL, "gemini://") {
 		rawURL = "gemini://" + rawURL
@@ -73,7 +73,7 @@ func parseGeminiURL(ctx *ReqContext, rawURL string) (retURL *url.URL, err error)
 
 // Builds an absolute gemini URL respecting the current context
 // e.g. "tata/foo.txt" on "gemini://test.com/~nana" => "gemini://test.com/~nana/tata/foo.txt"
-func gemParseURL(ctx *ReqContext, gemURL string) (string, error) {
+func gemParseURL(ctx *Context, gemURL string) (string, error) {
 	// Check for gemini scheme
 	isAbsolute := false
 	if match := hasSchemeRegexp.FindString(gemURL); len(match) >= 3 {

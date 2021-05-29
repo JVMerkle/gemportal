@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-// ReqContext holds data required
+// Context holds data required
 // throughout a gemportal request.
-type ReqContext struct {
+type Context struct {
 	w         http.ResponseWriter
 	r         *http.Request
 	redirects uint32
@@ -21,15 +21,15 @@ type ReqContext struct {
 	GemContent       string
 }
 
-func NewReqContext(cfg *Cfg, w http.ResponseWriter, r *http.Request) *ReqContext {
-	return &ReqContext{
+func NewContext(cfg *Cfg, w http.ResponseWriter, r *http.Request) *Context {
+	return &Context{
 		w:   w,
 		r:   r,
 		Cfg: cfg,
 	}
 }
 
-func (ctx *ReqContext) PrettyPrintGemURL() string {
+func (ctx *Context) PrettyPrintGemURL() string {
 	hostname := ctx.GemURL.Hostname()
 
 	// Something does not seem right...
