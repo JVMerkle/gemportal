@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"fmt"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -25,7 +24,7 @@ var templateFS embed.FS
 func main() {
 	cfg, err := app.GetConfig(AppVersion)
 	if err != nil {
-		panic(fmt.Sprintf("error loading config: %s", err.Error()))
+		log.Fatalf("Could not load config: %s", err.Error())
 	}
 
 	log.SetLevel(log.Level(cfg.LogLevel))
