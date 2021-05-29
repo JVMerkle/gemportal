@@ -16,5 +16,6 @@ COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /app/gemportal /bin/gemportal
 
+WORKDIR /bin
 USER nobody
 ENTRYPOINT ["/bin/gemportal"]
