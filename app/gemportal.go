@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"code.rocketnine.space/tslocum/gmitohtml/pkg/gmitohtml"
-	"github.com/JVMerkle/gemportal/app/cfg"
 	gem "github.com/JVMerkle/gemportal/gemini"
 	"github.com/makeworld-the-better-one/go-gemini"
 	"github.com/microcosm-cc/bluemonday"
@@ -31,12 +30,12 @@ func init() {
 }
 
 type GemPortal struct {
-	cfg           *cfg.Cfg
+	cfg           *Cfg
 	robotsCache   *cache.Cache
 	indexTemplate *template.Template
 }
 
-func NewGemPortal(cfg *cfg.Cfg, templateFS fs.FS) *GemPortal {
+func NewGemPortal(cfg *Cfg, templateFS fs.FS) *GemPortal {
 	// Create a cache with a default expiration time of 24 hours, and which
 	// purges expired items every 12 hours
 	robotsCache := cache.New(24*time.Hour, 12*time.Hour)

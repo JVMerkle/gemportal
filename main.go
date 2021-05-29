@@ -10,7 +10,6 @@ import (
 	_ "embed"
 
 	"github.com/JVMerkle/gemportal/app"
-	"github.com/JVMerkle/gemportal/app/cfg"
 	"github.com/gorilla/mux"
 )
 
@@ -24,10 +23,10 @@ var staticFS embed.FS
 var templateFS embed.FS
 
 type CatchAllHandler struct {
-	cfg *cfg.Cfg
+	cfg *app.Cfg
 }
 
-func NewCatchAllHandler(cfg *cfg.Cfg) *CatchAllHandler {
+func NewCatchAllHandler(cfg *app.Cfg) *CatchAllHandler {
 	return &CatchAllHandler{
 		cfg: cfg,
 	}
@@ -42,7 +41,7 @@ func (cah *CatchAllHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	cfg, err := cfg.GetConfig(AppVersion)
+	cfg, err := app.GetConfig(AppVersion)
 	if err != nil {
 		panic(fmt.Sprintf("error loading config: %s", err.Error()))
 	}
