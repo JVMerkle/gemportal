@@ -52,6 +52,7 @@ func main() {
 	catchAllHandler := NewCatchAllHandler(*cfg)
 
 	r := mux.NewRouter()
+	r.Use(PanicMiddleware)
 
 	// Static files
 	r.PathPrefix(cfg.BaseHREF + "static/").Handler(http.StripPrefix(cfg.BaseHREF,
@@ -66,4 +67,20 @@ func main() {
 	listen := ":" + cfg.HTTPPort
 	log.Infof("Listening on '%s' with base HREF '%s'", listen, cfg.BaseHREF)
 	log.Fatal(http.ListenAndServe(listen, r))
+}
+
+// PanicMiddleware catches panics, logs them and responds with an HTTP 500.
+func PanicMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		defer func() {
+			err := recover()
+			if err != nil {
+				log.Errorf("Panic Middleware: %s", err)
+				http.Error(w, "Gemportal here. There was an internal server error. If the error persists please contact the administrator.", http.StatusInternalServerError)
+			}
+		}()
+
+		next.ServeHTTP(w, r)
+	})
 }
