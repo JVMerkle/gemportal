@@ -278,7 +278,12 @@ func (gp *GemPortal) gemResponseToHTML(ctx *ReqContext, res *gemini.Response) (s
 	})
 
 	maybeUnsafeHTML := gmitohtml.Convert([]byte(s), ctx.GemURL.String())
-	html := bluemonday.UGCPolicy().SanitizeBytes(maybeUnsafeHTML)
+
+	policy := bluemonday.UGCPolicy()
+	policy.RequireNoFollowOnLinks(true)
+	policy.RequireNoReferrerOnLinks(true)
+
+	html := policy.SanitizeBytes(maybeUnsafeHTML)
 
 	return string(html), nil
 }
