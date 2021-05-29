@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"embed"
 	"errors"
 	"fmt"
 	"io"
@@ -20,6 +21,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/temoto/robotstxt"
 )
+
+//go:embed templates/index.html
+var templateFS embed.FS
 
 var urlRegexp *regexp.Regexp
 

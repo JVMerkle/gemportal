@@ -18,9 +18,6 @@ const AppVersion = "0.0.3"
 //go:embed static/app.js
 var staticFS embed.FS
 
-//go:embed templates/index.html
-var templateFS embed.FS
-
 type CatchAllHandler struct {
 	cfg *Cfg
 }
