@@ -16,4 +16,4 @@ There are HTTP Gemini portals out there already, but sadly they fail to provide 
 - [ ] Clean up code
 
 ## Contributing
-Open a PR or send your patches to info@jvmerkle.de.
+Open a PR or send your patches to me@jvmerkle.de.
