@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -40,6 +41,9 @@ func (c *Cfg) GetAppBuildMeta() string {
 // GetConfig loads and checks the application configuration
 func GetConfig(appVersion string) (*Cfg, error) {
 	var cfg Cfg
+
+	// Load environment variables from a ".env" file, if exists
+	_ = godotenv.Load()
 
 	err := envconfig.Process("GEM", &cfg)
 	if err != nil {
