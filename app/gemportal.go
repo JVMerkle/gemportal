@@ -281,6 +281,11 @@ func (gp *GemPortal) gemResponseToHTML(ctx *Context, res *gemini.Response) (stri
 		// Prepend the base HREF
 		newURL := ctx.Cfg.BaseHREF + gemURL
 
+		// Append query values (such as "unsafe=on" maybe)
+		if len(ctx.r.URL.RawQuery) > 0 {
+			newURL = newURL + "?" + ctx.r.URL.RawQuery
+		}
+
 		log.Debugf("Rewriting URL from '%s' to '%s'", oldURL, newURL)
 		return "=> " + newURL
 	})
