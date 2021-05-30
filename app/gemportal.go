@@ -61,6 +61,25 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Filter unknown query values.
+	// This is mandatory because later URLs in the Gemini response
+	// are rewritten and the current query values are appended to
+	// each URL.
+	newQuery := make(url.Values)
+	for k, v := range r.URL.Query() {
+		var reject bool
+		switch k {
+		case "insecure":
+		default:
+			reject = true
+		}
+
+		if !reject {
+			newQuery.Add(k, v[0])
+		}
+	}
+	r.URL.RawQuery = newQuery.Encode()
+
 	// Remove the base HREF from the requested path
 	ctx.r.URL.Path = r.URL.Path[len(ctx.Cfg.BaseHREF):]
 	path := ctx.r.URL.Path
