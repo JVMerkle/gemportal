@@ -24,11 +24,6 @@ button {
     border-style: solid;
     border-color: red;
 }
-.gem-url {
-    font-size: 1.5em;
-    text-decoration: underline;
-    margin-bottom: 2em;
-}
 .gem-content {
     margin: 2em;
     padding: 1em;
