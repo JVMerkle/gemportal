@@ -13,8 +13,8 @@
         <form onsubmit="return onSubmit()">
             <input id="idUrl" type="text" size="50" placeholder="gemini.circumlunar.space/docs/" value="{{ .PrettyPrintGemURL }}" required>
             <br>
-            <input id="idInsecure" type="checkbox" {{ if .Insecure }}checked{{ end }}>
-            <label for="idInsecure">Disable TLS checks <small>(Insecure)</small></label>
+            <input id="idInsecure" type="checkbox" onclick="return onUnsafeCheck()" {{ if .Insecure }}checked{{ end }}>
+            <label for="idInsecure">Disable TLS checks</label>
             <br>
             <button>Read</button>
         </form>

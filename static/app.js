@@ -16,3 +16,22 @@ function onSubmit() {
 
     return false;
 }
+
+function onUnsafeCheck() {
+    var text = `*WARNING*
+    The insecure mode disables all TLS-based checks, such as:
+    - checking for the correct hostname or IP in the certificate and
+    - checking for expired certificates.
+
+    Are you sure you want to enable the insecure mode?`;
+
+    var insecure = document.getElementById("idInsecure");
+    var checked = !insecure.checked; // Because we are in an 'onClick' hook
+    if(!checked) {
+        if (!confirm(text)) {
+            return false; // Reject checking the checkbox
+        }
+    }
+
+    return true;
+}
