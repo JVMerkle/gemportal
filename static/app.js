@@ -6,10 +6,10 @@ function onSubmit() {
     }
 
     var actionSrc = BASE_HREF + url.value;
-    var unsafe = document.getElementById("idUnsafe");
+    var insecure = document.getElementById("idInsecure");
 
-    if(unsafe.checked) {
-        window.location.href = actionSrc + "?unsafe=on";
+    if(insecure.checked) {
+        window.location.href = actionSrc + "?insecure=on";
     } else {
         window.location.href = actionSrc;
     }

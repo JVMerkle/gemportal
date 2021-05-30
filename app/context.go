@@ -15,10 +15,10 @@ type Context struct {
 
 	Cfg Cfg
 
-	DisableTLSChecks bool
-	GemError         string
-	GemURL           url.URL
-	GemContent       string
+	Insecure   bool
+	GemError   string
+	GemURL     url.URL
+	GemContent string
 }
 
 func NewContext(cfg Cfg, w http.ResponseWriter, r *http.Request) *Context {

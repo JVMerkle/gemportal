@@ -149,12 +149,12 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 		return
 	}
 
-	if values, ok := ctx.r.URL.Query()["unsafe"]; ok && len(values) > 0 && values[0] == "on" {
-		ctx.DisableTLSChecks = true
+	if values, ok := ctx.r.URL.Query()["insecure"]; ok && len(values) > 0 && values[0] == "on" {
+		ctx.Insecure = true
 	}
 
 	client := gemini.DefaultClient
-	if ctx.DisableTLSChecks {
+	if ctx.Insecure {
 		client.Insecure = true
 	}
 	res, err := client.Fetch(ctx.GemURL.String())
