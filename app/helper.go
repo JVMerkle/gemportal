@@ -11,7 +11,6 @@ import (
 
 var ErrInvalidHostName = errors.New("invalid host name")
 var ErrInvalidGeminiURL = errors.New("invalid Gemini URL")
-var ErrInvalidGeminiScheme = errors.New("invalid Gemini URL scheme")
 var ErrInvalidGeminiPort = errors.New("invalid Gemini port")
 var ErrGeminiResponseLimit = errors.New("gemini response limit exceeded")
 var ErrIPsProhibited = errors.New("IP addresses are prohibited")
