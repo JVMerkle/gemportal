@@ -160,7 +160,7 @@ func (gp *GemPortal) IsWebproxyAllowed(ctx *Context) bool {
 	return robots.TestAgent(ctx.GemURL.Path, "webproxy")
 }
 
-// Handles Gemini2HTML requests
+// ServeGemini2HTML handles Gemini2HTML requests
 func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 
 	if allowed := gp.IsWebproxyAllowed(ctx); !allowed {
