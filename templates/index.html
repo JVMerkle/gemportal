@@ -32,7 +32,11 @@
 
         <footer>
             <a href="https://github.com/JVMerkle/gemportal" title="Source Code" target="_blank" rel="noreferrer noopener">{{ .Cfg.AppName }}</a>
-            <span class="version" title="{{ .Cfg.GetAppVersion }}+{{ .Cfg.GetAppBuildMeta }}">v{{ .Cfg.GetAppVersion }}</span>
+            {{ if .Cfg.GetAppBuildMeta }}
+                <span class="version" title="{{ .Cfg.GetAppVersion }}+{{ .Cfg.GetAppBuildMeta }}">v{{ .Cfg.GetAppVersion }}</span>
+            {{ else }}
+                <span class="version" title="{{ .Cfg.GetAppVersion }}">v{{ .Cfg.GetAppVersion }}</span>
+            {{ end }}
         </footer>
     </body>
 </html>

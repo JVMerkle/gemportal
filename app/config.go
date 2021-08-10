@@ -54,8 +54,20 @@ func GetConfig(appVersion string) (*Config, error) {
 	if len(gitHash) == 0 || len(buildTime) == 0 {
 		return nil, ErrLinkerDefsMissing
 	}
+
+	buildMeta := []string{gitHash, buildTime}
+
 	cfg.appVersion = appVersion
-	cfg.appBuildMeta = gitHash + "-" + buildTime
+
+	for i := 0; i < len(buildMeta); i++ {
+		cfg.appBuildMeta += buildMeta[i]
+		cfg.appBuildMeta += "-"
+	}
+
+	// Remove the last dash "-"
+	if len(cfg.appBuildMeta) > 0 {
+		cfg.appBuildMeta = cfg.appBuildMeta[:len(cfg.appBuildMeta)-2]
+	}
 
 	// The base HREF has to be pre- and suffixed by a slash
 	if !strings.HasPrefix(cfg.BaseHREF, "/") || !strings.HasSuffix(cfg.BaseHREF, "/") {
