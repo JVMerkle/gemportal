@@ -19,10 +19,8 @@ var hasSchemeRegexp *regexp.Regexp
 var hasMailtoRegexp *regexp.Regexp
 
 func init() {
-	hasSchemeRegex := `[a-z]+://`
-	hasSchemeRegexp = regexp.MustCompile(hasSchemeRegex)
-	hasMailtoRegex := `mailto:`
-	hasMailtoRegexp = regexp.MustCompile(hasMailtoRegex)
+	hasSchemeRegexp = regexp.MustCompile(`[a-z]+://`)
+	hasMailtoRegexp = regexp.MustCompile(`mailto:`)
 }
 
 // parseGeminiURL parses a Gemini URL in a git.sr.ht/~yotam/go-gemini
