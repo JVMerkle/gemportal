@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	log "github.com/sirupsen/logrus"
 	"strings"
 
 	"github.com/joho/godotenv"
@@ -9,8 +10,7 @@ import (
 )
 
 var (
-	ErrLinkerDefsMissing = errors.New("link time definitions missing (GitHash/Buildtime)")
-	ErrBadBaseHREF       = errors.New("base HREF must begin and end with a slash")
+	ErrBadBaseHREF = errors.New("base HREF must begin and end with a slash")
 )
 
 // Injected with linker flags
@@ -52,7 +52,7 @@ func GetConfig(appVersion string) (*Config, error) {
 	}
 
 	if len(gitHash) == 0 || len(buildTime) == 0 {
-		return nil, ErrLinkerDefsMissing
+		log.Warn("Link time definitions missing (GitHash/Buildtime)")
 	}
 
 	buildMeta := []string{gitHash, buildTime}
