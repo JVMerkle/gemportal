@@ -16,10 +16,13 @@ var ErrGeminiResponseLimit = errors.New("gemini response limit exceeded")
 var ErrIPsProhibited = errors.New("IP addresses are prohibited")
 
 var hasSchemeRegexp *regexp.Regexp
+var hasMailtoRegexp *regexp.Regexp
 
 func init() {
 	hasSchemeRegex := `[a-z]+://`
 	hasSchemeRegexp = regexp.MustCompile(hasSchemeRegex)
+	hasMailtoRegex := `mailto:`
+	hasMailtoRegexp = regexp.MustCompile(hasMailtoRegex)
 }
 
 // parseGeminiURL parses a Gemini URL in a git.sr.ht/~yotam/go-gemini
@@ -82,6 +85,8 @@ func gemParseURL(ctx *Context, gemURL string) (string, error) {
 		} else {
 			return "", errors.New("not a gemini URL")
 		}
+	} else if match := hasMailtoRegexp.FindString(gemURL); len(match) > 0 {
+		return "", errors.New("not a gemini URL")
 	}
 
 	if !isAbsolute { // Relative (without scheme)
