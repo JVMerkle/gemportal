@@ -29,12 +29,12 @@ func init() {
 }
 
 type GemPortal struct {
-	cfg           Cfg
+	cfg           Config
 	robotsCache   *cache.Cache
 	indexTemplate *template.Template
 }
 
-func NewGemPortal(cfg Cfg, templateFS fs.FS) *GemPortal {
+func NewGemPortal(cfg Config, templateFS fs.FS) *GemPortal {
 	// Create a cache with a default expiration time of 24 hours, and which
 	// purges expired items every 12 hours
 	robotsCache := cache.New(24*time.Hour, 12*time.Hour)

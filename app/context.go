@@ -13,7 +13,7 @@ type Context struct {
 	r         *http.Request
 	redirects uint32
 
-	Cfg Cfg
+	Cfg Config
 
 	Insecure   bool
 	GemError   string
@@ -21,7 +21,7 @@ type Context struct {
 	GemContent string
 }
 
-func NewContext(cfg Cfg, w http.ResponseWriter, r *http.Request) *Context {
+func NewContext(cfg Config, w http.ResponseWriter, r *http.Request) *Context {
 	return &Context{
 		w:   w,
 		r:   r,

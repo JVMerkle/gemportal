@@ -19,7 +19,7 @@ var (
 	buildTime string
 )
 
-type Cfg struct {
+type Config struct {
 	appVersion     string `ignored:"true"`                                 // Application version (e.g. 1.13.5)
 	appBuildMeta   string `ignored:"true"`                                 // Application build meta information (e.g. ae5f03-2021)
 	AppName        string `envconfig:"APPNAME"        default:"Gemportal"` // Application name
@@ -31,17 +31,17 @@ type Cfg struct {
 	RedirectsLimit uint32 `envconfig:"MAX_REDIRECTS"  default:"3"`         // Maximum gemini redirects to follow
 }
 
-func (c *Cfg) GetAppVersion() string {
+func (c *Config) GetAppVersion() string {
 	return c.appVersion
 }
 
-func (c *Cfg) GetAppBuildMeta() string {
+func (c *Config) GetAppBuildMeta() string {
 	return c.appBuildMeta
 }
 
 // GetConfig loads and checks the application configuration
-func GetConfig(appVersion string) (*Cfg, error) {
-	var cfg Cfg
+func GetConfig(appVersion string) (*Config, error) {
+	var cfg Config
 
 	// Load environment variables from a ".env" file, if exists
 	_ = godotenv.Load()
