@@ -255,7 +255,7 @@ func (gp *GemPortal) executeIndexTemplate(ctx *Context) {
 }
 
 // gemResponseToString reads gemtext to a length limited string (30MiB)
-func (gp *GemPortal) gemResponseToString(ctx *Context, res *gemini.Response) (string, error) {
+func (gp *GemPortal) gemResponseToString(res *gemini.Response) (string, error) {
 	buf := &bytes.Buffer{}
 
 	limit := gp.cfg.RespMemLimit
@@ -277,7 +277,7 @@ func (gp *GemPortal) gemResponseToString(ctx *Context, res *gemini.Response) (st
 // all Gemini URLs to hit the application server.
 func (gp *GemPortal) gemResponseToHTML(ctx *Context, res *gemini.Response) (string, error) {
 
-	s, err := gp.gemResponseToString(ctx, res)
+	s, err := gp.gemResponseToString(res)
 	if err != nil {
 		return "", err
 	}
