@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const AppVersion = "0.1.2"
+const AppVersion = "0.1.3-dev"
 
 //go:embed static/style.css
 //go:embed static/app.js
