@@ -17,6 +17,7 @@ type Context struct {
 
 	Insecure   bool
 	GemError   string
+	GemInput   string
 	GemURL     url.URL
 	GemContent string
 }

@@ -70,6 +70,7 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		var reject bool
 		switch k {
 		case "insecure":
+		case "query":
 		default:
 			reject = true
 		}
@@ -88,8 +89,14 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 	} else {
 
+		// Input (if available)
+		var input string
+		if query, ok := ctx.r.URL.Query()["query"]; ok && len(query) > 0 {
+			input = "?query=" + url.QueryEscape(query[0])
+		}
+
 		// Store the requested Gemini URL in the context
-		parsedURL, err := parseGeminiURL(ctx, ctx.r.URL.Path)
+		parsedURL, err := parseGeminiURL(ctx, ctx.r.URL.Path+input)
 		if err != nil {
 			gp.errResp(ctx, err.Error(), http.StatusBadRequest)
 			return
@@ -183,7 +190,11 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 	}
 	defer res.Body.Close()
 
-	if gemini.SimplifyStatus(res.Status) == gemini.StatusRedirect {
+	if gemini.SimplifyStatus(res.Status) == gemini.StatusInput {
+		ctx.GemInput = res.Meta
+		gp.executeIndexTemplate(ctx)
+		return
+	} else if gemini.SimplifyStatus(res.Status) == gemini.StatusRedirect {
 		gp.redirectHandler(ctx, res)
 		return
 	} else if res.Status != gemini.StatusSuccess {
