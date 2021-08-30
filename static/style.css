@@ -24,6 +24,13 @@ button {
     border-style: solid;
     border-color: red;
 }
+.gem-input {
+    margin: 2em;
+    padding: 1em;
+    border-radius: 1px;
+    border-style: solid;
+    border-color: forestgreen;
+}
 .gem-content {
     margin: 2em;
     padding: 1em;
