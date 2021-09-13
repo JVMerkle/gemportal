@@ -24,6 +24,15 @@
         <div class="gem-error">
             {{ .GemError }}
         </div>
+        {{ else if .GemInputMeta }}
+        <div class="gem-input">
+            <p>Input requested:</p>
+            <form>
+                <input id="input" name="query" placeholder="{{ .GemInputMeta }}" />
+                <br>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
         {{ else if .GemContent }}
         <div class="gem-content">
             {{ .GemContent }}

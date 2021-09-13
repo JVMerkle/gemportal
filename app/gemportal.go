@@ -61,7 +61,7 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Filter unknown query values.
+	// Filter unknown / handle query values.
 	// This is mandatory because later URLs in the Gemini response
 	// are rewritten and the current query values are appended to
 	// each URL.
@@ -70,6 +70,9 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		var reject bool
 		switch k {
 		case "insecure":
+		case "query":
+			ctx.GemInputRequest = v[0]
+			reject = true
 		default:
 			reject = true
 		}
@@ -88,8 +91,14 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 	} else {
 
+		// Input (if available)
+		var input string
+		if query, ok := ctx.r.URL.Query()["query"]; ok && len(query) > 0 {
+			input = "?query=" + url.QueryEscape(query[0])
+		}
+
 		// Store the requested Gemini URL in the context
-		parsedURL, err := parseGeminiURL(ctx, ctx.r.URL.Path)
+		parsedURL, err := parseGeminiURL(ctx, ctx.r.URL.Path+input)
 		if err != nil {
 			gp.errResp(ctx, err.Error(), http.StatusBadRequest)
 			return
@@ -172,6 +181,11 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 		ctx.Insecure = true
 	}
 
+	// Append query if exists
+	if len(ctx.GemInputRequest) > 0 {
+		ctx.GemURL.RawQuery = ctx.GemInputRequest
+	}
+
 	client := gemini.DefaultClient
 	if ctx.Insecure {
 		client.Insecure = true
@@ -183,7 +197,11 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 	}
 	defer res.Body.Close()
 
-	if gemini.SimplifyStatus(res.Status) == gemini.StatusRedirect {
+	if gemini.SimplifyStatus(res.Status) == gemini.StatusInput {
+		ctx.GemInputMeta = res.Meta
+		gp.executeIndexTemplate(ctx)
+		return
+	} else if gemini.SimplifyStatus(res.Status) == gemini.StatusRedirect {
 		gp.redirectHandler(ctx, res)
 		return
 	} else if res.Status != gemini.StatusSuccess {
@@ -290,8 +308,33 @@ func (gp *GemPortal) gemResponseToHTML(ctx *Context, res *gemini.Response) (stri
 
 		gemURL, err := gemParseURL(ctx, s)
 		if err != nil { // Omit URL
+			log.Debugf("Skipping URL from '%s'", oldURL)
 			return oldURL
 		}
+
+		parsedURL, err := url.Parse(gemURL)
+		if err != nil {
+			log.Debugf("Skipping URL from '%s'", oldURL)
+			return oldURL
+		}
+
+		newQuery := make(url.Values, 0)
+
+		// Extract the Gemini Query (if exists)
+		for query, _ := range parsedURL.Query() {
+			newQuery.Add("query", query)
+			break
+		}
+
+		// Append HTTP query values (such as "unsafe=on" maybe)
+		if len(ctx.r.URL.RawQuery) > 0 {
+			for k, v := range ctx.r.URL.Query() {
+				newQuery.Add(k, v[0])
+			}
+		}
+
+		parsedURL.RawQuery = newQuery.Encode()
+		gemURL = parsedURL.String()
 
 		// Remove the scheme and leading slashes
 		gemURL = strings.TrimPrefix(gemURL, "gemini://")
@@ -299,11 +342,6 @@ func (gp *GemPortal) gemResponseToHTML(ctx *Context, res *gemini.Response) (stri
 
 		// Prepend the base HREF
 		newURL := ctx.Cfg.BaseHREF + gemURL
-
-		// Append query values (such as "unsafe=on" maybe)
-		if len(ctx.r.URL.RawQuery) > 0 {
-			newURL = newURL + "?" + ctx.r.URL.RawQuery
-		}
 
 		log.Debugf("Rewriting URL from '%s' to '%s'", oldURL, newURL)
 		return "=> " + newURL

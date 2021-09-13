@@ -15,10 +15,12 @@ type Context struct {
 
 	Cfg Config
 
-	Insecure   bool
-	GemError   string
-	GemURL     url.URL
-	GemContent string
+	Insecure        bool
+	GemError        string
+	GemInputRequest string // Input data (user value)
+	GemInputMeta    string // Input data description
+	GemURL          url.URL
+	GemContent      string
 }
 
 func NewContext(cfg Config, w http.ResponseWriter, r *http.Request) *Context {
