@@ -11,6 +11,7 @@ There are HTTP Gemini portals out there already, but sadly they fail to provide 
 ## Features
 - [X] Variable base HREF support
 - [X] Enable/Disable TLS checks
+- [X] Input support
 - [X] Follow redirects
 - [X] Respect robots.txt's
 
