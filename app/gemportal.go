@@ -61,7 +61,7 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Filter unknown query values.
+	// Filter unknown / handle query values.
 	// This is mandatory because later URLs in the Gemini response
 	// are rewritten and the current query values are appended to
 	// each URL.
@@ -71,6 +71,8 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		switch k {
 		case "insecure":
 		case "query":
+			ctx.GemInputRequest = v[0]
+			reject = true
 		default:
 			reject = true
 		}
@@ -177,6 +179,13 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 
 	if values, ok := ctx.r.URL.Query()["insecure"]; ok && len(values) > 0 && values[0] == "on" {
 		ctx.Insecure = true
+	}
+
+	// Append query if exists
+	if len(ctx.GemInputRequest) > 0 {
+		query := ctx.GemURL.Query()
+		query.Add("query", ctx.GemInputRequest)
+		ctx.GemURL.RawQuery = query.Encode()
 	}
 
 	client := gemini.DefaultClient
