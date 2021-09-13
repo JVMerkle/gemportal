@@ -200,7 +200,7 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 	defer res.Body.Close()
 
 	if gemini.SimplifyStatus(res.Status) == gemini.StatusInput {
-		ctx.GemInput = res.Meta
+		ctx.GemInputMeta = res.Meta
 		gp.executeIndexTemplate(ctx)
 		return
 	} else if gemini.SimplifyStatus(res.Status) == gemini.StatusRedirect {

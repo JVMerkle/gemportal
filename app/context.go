@@ -17,8 +17,8 @@ type Context struct {
 
 	Insecure        bool
 	GemError        string
-	GemInputRequest string
-	GemInput        string
+	GemInputRequest string // Input data (user value)
+	GemInputMeta    string // Input data description
 	GemURL          url.URL
 	GemContent      string
 }
