@@ -183,9 +183,7 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 
 	// Append query if exists
 	if len(ctx.GemInputRequest) > 0 {
-		query := ctx.GemURL.Query()
-		query.Add("query", ctx.GemInputRequest)
-		ctx.GemURL.RawQuery = query.Encode()
+		ctx.GemURL.RawQuery = ctx.GemInputRequest
 	}
 
 	client := gemini.DefaultClient
@@ -310,8 +308,33 @@ func (gp *GemPortal) gemResponseToHTML(ctx *Context, res *gemini.Response) (stri
 
 		gemURL, err := gemParseURL(ctx, s)
 		if err != nil { // Omit URL
+			log.Debugf("Skipping URL from '%s'", oldURL)
 			return oldURL
 		}
+
+		parsedURL, err := url.Parse(gemURL)
+		if err != nil {
+			log.Debugf("Skipping URL from '%s'", oldURL)
+			return oldURL
+		}
+
+		newQuery := make(url.Values, 0)
+
+		// Extract the Gemini Query (if exists)
+		for query, _ := range parsedURL.Query() {
+			newQuery.Add("query", query)
+			break
+		}
+
+		// Append HTTP query values (such as "unsafe=on" maybe)
+		if len(ctx.r.URL.RawQuery) > 0 {
+			for k, v := range ctx.r.URL.Query() {
+				newQuery.Add(k, v[0])
+			}
+		}
+
+		parsedURL.RawQuery = newQuery.Encode()
+		gemURL = parsedURL.String()
 
 		// Remove the scheme and leading slashes
 		gemURL = strings.TrimPrefix(gemURL, "gemini://")
@@ -319,11 +342,6 @@ func (gp *GemPortal) gemResponseToHTML(ctx *Context, res *gemini.Response) (stri
 
 		// Prepend the base HREF
 		newURL := ctx.Cfg.BaseHREF + gemURL
-
-		// Append query values (such as "unsafe=on" maybe)
-		if len(ctx.r.URL.RawQuery) > 0 {
-			newURL = newURL + "?" + ctx.r.URL.RawQuery
-		}
 
 		log.Debugf("Rewriting URL from '%s' to '%s'", oldURL, newURL)
 		return "=> " + newURL
