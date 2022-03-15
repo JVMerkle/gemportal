@@ -121,7 +121,9 @@ func (gp *GemPortal) DownloadRobotsTxt(ctx *Context) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer func() {
+		_ = res.Body.Close()
+	}()
 
 	if res.Status != gemini.StatusSuccess {
 		return nil, fmt.Errorf("could not retrieve robots.txt (code %d)", res.Status)
@@ -195,7 +197,9 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 		gp.errResp(ctx, "Could not perform gemini request: "+err.Error(), http.StatusBadGateway)
 		return
 	}
-	defer res.Body.Close()
+	defer func() {
+		_ = res.Body.Close()
+	}()
 
 	if gemini.SimplifyStatus(res.Status) == gemini.StatusInput {
 		ctx.GemInputMeta = res.Meta
@@ -321,7 +325,7 @@ func (gp *GemPortal) gemResponseToHTML(ctx *Context, res *gemini.Response) (stri
 		newQuery := make(url.Values, 0)
 
 		// Extract the Gemini Query (if exists)
-		for query, _ := range parsedURL.Query() {
+		for query := range parsedURL.Query() {
 			newQuery.Add("query", query)
 			break
 		}
