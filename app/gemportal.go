@@ -139,11 +139,11 @@ func (gp *GemPortal) DownloadRobotsTxt(ctx *Context) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// IsWebproxyAllowed checks if the webproxy is allowed to request the
+// IsWebProxyAllowed checks if the web proxy is allowed to request the
 // resource (ctx.GemURL) as specified in the hosts robots.txt. If in doubt
-// (e.g. robots.txt can not be retrieved) IsWebproxyAllowed returns true (thus
+// (e.g. robots.txt can not be retrieved) IsWebProxyAllowed returns true (thus
 // allowing access)
-func (gp *GemPortal) IsWebproxyAllowed(ctx *Context) bool {
+func (gp *GemPortal) IsWebProxyAllowed(ctx *Context) bool {
 	var robots *robotstxt.RobotsData
 
 	// Lookup Host (including Port)
@@ -174,7 +174,7 @@ func (gp *GemPortal) IsWebproxyAllowed(ctx *Context) bool {
 // ServeGemini2HTML handles Gemini2HTML requests
 func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 
-	if allowed := gp.IsWebproxyAllowed(ctx); !allowed {
+	if allowed := gp.IsWebProxyAllowed(ctx); !allowed {
 		gp.errResp(ctx, "The host does not allow webproxies on this path", http.StatusForbidden)
 		return
 	}
