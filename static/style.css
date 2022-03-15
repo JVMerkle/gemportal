@@ -16,6 +16,13 @@ input{
 button {
     margin-top: 0.5em;
 }
+.title:link,
+.title:visited,
+.title:hover,
+.title:active {
+    color: black;
+    text-decoration: none;
+}
 .gem-error {
     margin: 2em;
     padding: 1em;

@@ -9,7 +9,7 @@
         <script>const BASE_HREF = '{{ .Cfg.BaseHREF }}';</script>
     </head>
     <body>
-        <h1>{{ .Cfg.AppName }}</h1>
+        <h1><a class="title" href="{{ .Cfg.BaseHREF }}">{{ .Cfg.AppName }}</a></h1>
         <p><b>Easy</b> Gemini HTTP portal for port {{ .Cfg.DefaultPort }}.</p>
 
         <form onsubmit="return onSubmit()">
