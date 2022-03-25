@@ -1,8 +1,12 @@
+/* SPDX-FileCopyrightText: 2021-2022 Contributors of gemportal */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
 body {
     text-align: center;
     font-family: 'Courier New', monospace;
     overflow-y: scroll;
 }
+
 footer {
     margin-top: 1em;
     font-size: 0.8em;
