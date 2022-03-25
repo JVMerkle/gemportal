@@ -1,3 +1,6 @@
+/* SPDX-FileCopyrightText: 2021-2022 Contributors of gemportal */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
 function onSubmit() {
     let url = document.getElementById("idUrl");
 
