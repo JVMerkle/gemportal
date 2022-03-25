@@ -45,7 +45,8 @@
         </div>
         {{ end }}
         <footer>
-            <a href="https://github.com/JVMerkle/gemportal" title="Source Code" target="_blank" rel="noreferrer noopener">{{ .Cfg.AppName }}</a>
+            <a href="https://github.com/JVMerkle/gemportal" title="Source Code" target="_blank"
+               rel="noreferrer noopener">gemportal</a>
             {{ if .Cfg.GetAppBuildMeta }}
                 <span class="version" title="{{ .Cfg.GetAppVersion }}+{{ .Cfg.GetAppBuildMeta }}">v{{ .Cfg.GetAppVersion }}</span>
             {{ else }}
