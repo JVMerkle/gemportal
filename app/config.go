@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2021-2022 Julian Merkle <me@jvmerkle.de>
 //
 // SPDX-License-Identifier: AGPL-3.0-only
+
 package app
 
 import (
