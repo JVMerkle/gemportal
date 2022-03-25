@@ -69,7 +69,7 @@ func PanicMiddleware(next http.Handler) http.Handler {
 			err := recover()
 			if err != nil {
 				log.Errorf("Panic Middleware: %s", err)
-				http.Error(w, "Gemportal here. There was an internal server error. If the error persists please contact the administrator.", http.StatusInternalServerError)
+				http.Error(w, "There was an internal server error. If the error persists please contact the administrator.", http.StatusInternalServerError)
 			}
 		}()
 
