@@ -1,6 +1,7 @@
 body {
     text-align: center;
     font-family: 'Courier New', monospace;
+    overflow-y: scroll;
 }
 footer {
     margin-top: 1em;
