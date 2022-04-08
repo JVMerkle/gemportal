@@ -19,6 +19,7 @@ license.
 - Input support
 - Follow redirects
 - Respect robots.txt's
+- Dark theme support
 
 ## Contributing
 

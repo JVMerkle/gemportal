@@ -1,6 +1,43 @@
 /* SPDX-FileCopyrightText: 2021-2022 Contributors of gemportal */
 /* SPDX-License-Identifier: AGPL-3.0-only */
 
+.theme {
+    background: #eee;
+    color: black;
+}
+
+.control a:link,
+.control a:visited,
+.control a:hover,
+.control a:active {
+    color: black;
+}
+
+@media (prefers-color-scheme: dark) {
+    .theme {
+        background: #0d1117;
+        color: #f0f6fc;
+    }
+
+    .control a:link,
+    .control a:visited,
+    .control a:hover,
+    .control a:active {
+        color: #f4f4f4;
+    }
+
+    /* Override default link colors */
+    a:link {
+        color: #aaaaee;
+    }
+
+    a:visited,
+    a:hover,
+    a:active {
+        color: #f4f4f4;
+    }
+}
+
 body {
     text-align: center;
     font-family: 'Courier New', monospace;
@@ -11,6 +48,7 @@ footer {
     margin-top: 1em;
     font-size: 0.8em;
 }
+
 h3 {
     margin-top: 0.2em;
     margin-bottom: 0.05em;
@@ -21,11 +59,12 @@ input{
 button {
     margin-top: 0.5em;
 }
+
+.control a,
 .title:link,
 .title:visited,
 .title:hover,
 .title:active {
-    color: black;
     text-decoration: none;
 }
 .gem-error {
@@ -43,6 +82,7 @@ button {
     border-style: solid;
     border-color: forestgreen;
 }
+
 .gem-content {
     margin: 2em;
     padding: 1em;
@@ -52,7 +92,11 @@ button {
     text-align: left;
     font-family: 'Lucida Console', monospace;
 }
+
+.source-link:hover {
+    text-decoration: underline;
+}
+
 .version {
-    color: black;
     font-weight: bold;
 }

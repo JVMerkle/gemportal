@@ -2,56 +2,60 @@
 <!-- SPDX-FileCopyrightText: 2021-2022 Contributors of gemportal -->
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>{{ .Cfg.AppName }}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ .Cfg.AppName }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link rel="stylesheet" href="{{ .Cfg.BaseHREF }}static/style.css">
-        <script>const BASE_HREF = '{{ .Cfg.BaseHREF }}';</script>
-    </head>
-    <body>
-        <h1><a class="title" href="{{ .Cfg.BaseHREF }}">{{ .Cfg.AppName }}</a></h1>
-        <p>{{ .Cfg.AppDesc }}</p>
+    <link rel="stylesheet" href="{{ .Cfg.BaseHREF }}static/style.css">
+    <script>const BASE_HREF = '{{ .Cfg.BaseHREF }}';</script>
+</head>
+<body class="theme">
+<div class="control">
+    <h1><a class="title" href="{{ .Cfg.BaseHREF }}">{{ .Cfg.AppName }}</a></h1>
+    <p>{{ .Cfg.AppDesc }}</p>
 
-        <form onsubmit="return onSubmit()">
-            <label for="idUrl" hidden>Query</label>
-            <input id="idUrl" type="text" size="50" placeholder="{{ .Cfg.InputPlaceholder }}" value="{{ .PrettyPrintGemURL }}" required>
-            <br>
-            <input id="idInsecure" type="checkbox" onclick="return onUnsafeCheck()" {{ if .Insecure }}checked{{ end }}>
-            <label for="idInsecure">Disable TLS checks</label>
-            <br>
-            <button>Read</button>
-        </form>
-        <script src="{{ .Cfg.BaseHREF }}static/app.js"></script>
+    <form onsubmit="return onSubmit()">
+        <label for="idUrl" hidden>Query</label>
+        <input id="idUrl" type="text" size="50" placeholder="{{ .Cfg.InputPlaceholder }}"
+               value="{{ .PrettyPrintGemURL }}" required>
+        <br>
+        <input id="idInsecure" type="checkbox" onclick="return onUnsafeCheck()" {{ if .Insecure }}checked{{ end }}>
+        <label for="idInsecure">Disable TLS checks</label>
+        <br>
+        <button>Read</button>
+    </form>
+    <script src="{{ .Cfg.BaseHREF }}static/app.js"></script>
+</div>
 
-        {{ if .GemError }}
-        <div class="gem-error">
-            {{ .GemError }}
-        </div>
-        {{ else if .GemInputMeta }}
-        <div class="gem-input">
-            <p>Input requested:</p>
-            <form>
-                <label for="input" hidden>{{ .GemInputMeta }}</label>
-                <input id="input" name="query" placeholder="{{ .GemInputMeta }}" />
-                <br>
-                <input type="submit" value="Submit">
-            </form>
-        </div>
-        {{ else if .GemContent }}
-        <div class="gem-content">
-            {{ .GemContent }}
-        </div>
-        {{ end }}
-        <footer>
-            <a href="https://github.com/JVMerkle/gemportal" title="Source Code" target="_blank"
-               rel="noreferrer noopener">gemportal</a>
-            {{ if .Cfg.GetAppBuildMeta }}
-                <span class="version" title="{{ .Cfg.GetAppVersion }}+{{ .Cfg.GetAppBuildMeta }}">v{{ .Cfg.GetAppVersion }}</span>
-            {{ else }}
-                <span class="version" title="{{ .Cfg.GetAppVersion }}">v{{ .Cfg.GetAppVersion }}</span>
-            {{ end }}
-        </footer>
-    </body>
+{{ if .GemError }}
+<div class="gem-error">
+    {{ .GemError }}
+</div>
+{{ else if .GemInputMeta }}
+<div class="gem-input">
+    <p>Input requested:</p>
+    <form>
+        <label for="input" hidden>{{ .GemInputMeta }}</label>
+        <input id="input" type="text" size="40" name="query" placeholder="{{ .GemInputMeta }}"/>
+        <br>
+        <input type="submit" value="Submit">
+    </form>
+</div>
+{{ else if .GemContent }}
+<div class="gem-content">
+    {{ .GemContent }}
+</div>
+{{ end }}
+<footer class="control">
+    <a href="https://github.com/JVMerkle/gemportal" class="source-link" title="Source Code" target="_blank"
+       rel="noreferrer noopener">gemportal</a>
+    {{ if .Cfg.GetAppBuildMeta }}
+    <span class="version"
+          title="{{ .Cfg.GetAppVersion }}+{{ .Cfg.GetAppBuildMeta }}">v{{ .Cfg.GetAppVersion }}</span>
+    {{ else }}
+    <span class="version" title="{{ .Cfg.GetAppVersion }}">v{{ .Cfg.GetAppVersion }}</span>
+    {{ end }}
+</footer>
+</body>
 </html>
