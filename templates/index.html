@@ -23,7 +23,7 @@
         <input id="idInsecure" type="checkbox" onclick="return onUnsafeCheck()" {{ if .Insecure }}checked{{ end }}>
         <label for="idInsecure">Disable TLS checks</label>
         <br>
-        <button>Read</button>
+        <button type="submit">Read</button>
     </form>
     <script src="{{ .Cfg.BaseHREF }}static/app.js"></script>
 </div>
