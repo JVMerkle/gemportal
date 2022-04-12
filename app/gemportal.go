@@ -172,7 +172,12 @@ func (gp *GemPortal) IsWebProxyAllowed(ctx *Context) bool {
 		gp.robotsCache.Set(ctx.GemURL.Host, robots, cache.DefaultExpiration)
 	}
 
-	return robots.TestAgent(ctx.GemURL.Path, "webproxy")
+	// Is the group EXPLICITLY listed?
+	if group := robots.FindGroup("webproxy"); group.Agent == "webproxy" {
+		return group.Test(ctx.GemURL.Path)
+	} else {
+		return true
+	}
 }
 
 // ServeGemini2HTML handles Gemini2HTML requests
