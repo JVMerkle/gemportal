@@ -9,7 +9,7 @@ RUN go mod download
 
 # Build and install
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+RUN CGO_ENABLED=0 make build
 
 FROM scratch
 COPY --from=builder /etc/passwd /etc/passwd
