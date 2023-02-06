@@ -5,7 +5,7 @@ go 1.16
 require (
 	code.rocketnine.space/tslocum/gmitohtml v1.0.5
 	github.com/gorilla/mux v1.8.0
-	github.com/joho/godotenv v1.4.0
+	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/makeworld-the-better-one/go-gemini v0.13.0
 	github.com/microcosm-cc/bluemonday v1.0.21
