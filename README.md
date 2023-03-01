@@ -23,4 +23,4 @@ license.
 
 ## Contributing
 
-Open a PR or send your patches to me@jvmerkle.de.
+Open a PR or send your patches to info@jvmerkle.de.
