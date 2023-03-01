@@ -1,4 +1,4 @@
-FROM golang:1.17.8-alpine3.15 AS builder
+FROM docker.io/golang:1.20.1-alpine3.17 AS builder
 
 RUN apk --no-cache add make git
 WORKDIR /app
@@ -9,7 +9,7 @@ RUN go mod download
 
 # Build and install
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+RUN CGO_ENABLED=0 make build
 
 FROM scratch
 COPY --from=builder /etc/passwd /etc/passwd
