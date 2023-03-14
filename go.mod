@@ -8,9 +8,8 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/makeworld-the-better-one/go-gemini v0.13.0
-	github.com/microcosm-cc/bluemonday v1.0.22
+	github.com/microcosm-cc/bluemonday v1.0.23
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sirupsen/logrus v1.9.0
 	github.com/temoto/robotstxt v1.1.3-0.20220411224903-a68aeca94fff
-	golang.org/x/net v0.7.0 // indirect
 )
