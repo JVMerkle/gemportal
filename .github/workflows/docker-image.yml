@@ -15,4 +15,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag jvmerkle/gemportal:$(date +%s)
+        run: docker build . --file Containerfile --tag jvmerkle/gemportal:$(date +%s)

@@ -1,5 +1,5 @@
 GO ?= go
-DOCKER ?= docker
+PODMAN ?= podman
 
 GITHASH := $(shell git rev-parse --short HEAD)
 BUILDTIME := $(shell date -u '+%Y%m%dT%H%M%SZ')
@@ -9,7 +9,7 @@ GOLDFLAGS += -X "github.com/JVMerkle/gemportal/app.buildTime=$(BUILDTIME)"
 GOLDFLAGS += -w -s
 GOFLAGS += -ldflags "$(GOLDFLAGS)"
 
-.PHONY: help run build get-deps vet fmt pull-request docker-build docker-run clean
+.PHONY: help run build get-deps vet fmt pull-request podman-build podman-run clean
 
 help:
 	@echo "Makefile for gemportal"
@@ -18,12 +18,14 @@ help:
 	@echo ""
 	@echo "	make <commands>"
 	@echo ""
+	@echo "Pass PODMAN=docker to use docker for building."
+	@echo ""
 	@echo "The commands are:"
 	@echo ""
 	@echo "	build               Build the package"
 	@echo "	clean               Run go clean"
-	@echo "	docker-build        Build the gemportal image"
-	@echo "	docker-run          Run a gemportal container on port 8080"
+	@echo "	podman-build        Build the gemportal image"
+	@echo "	podman-run          Run a gemportal container on port 8080"
 	@echo "	fmt                 Run go fmt"
 	@echo "	get-deps            Download the dependencies"
 	@echo "	help                Print this help text"
@@ -48,11 +50,11 @@ fmt:
 pull-request: build fmt vet
 	@echo "Your code looks good!"
 
-docker-build:
-	$(DOCKER) build -t gemportal .
+podman-build:
+	$(PODMAN) build -t gemportal .
 
-docker-run: docker-build
-	$(DOCKER) run --rm -it -p8080:8080 gemportal
+podman-run: podman-build
+	$(PODMAN) run --rm -it -p8080:8080 gemportal
 
 clean:
 	@$(GO) clean
