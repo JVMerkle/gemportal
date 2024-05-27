@@ -57,7 +57,7 @@ func main() {
 	r.PathPrefix("/").HandlerFunc(catchAllHandleFunc)
 
 	listen := "0.0.0.0:" + cfg.HTTPPort
-	log.Infof("Listening on '%s'", listen+cfg.BaseHREF)
+	log.Infof("Listening on 'http://%s'", listen+cfg.BaseHREF)
 	log.Fatal(http.ListenAndServe(listen, r))
 }
 
