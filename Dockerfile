@@ -1,4 +1,4 @@
-FROM docker.io/golang:1.20.1-alpine3.17 AS builder
+FROM docker.io/golang:1.22.3-alpine3.20 AS builder
 
 RUN apk --no-cache add make git
 WORKDIR /app
