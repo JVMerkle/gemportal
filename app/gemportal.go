@@ -173,8 +173,12 @@ func (gp *GemPortal) IsWebProxyAllowed(ctx *Context) bool {
 	}
 
 	// Is the group EXPLICITLY listed?
-	if group := robots.FindGroup("webproxy"); group.Agent == "webproxy" {
-		return group.Test(ctx.GemURL.Path)
+	if robots != nil {
+		if group := robots.FindGroup("webproxy"); group.Agent == "webproxy" {
+			return group.Test(ctx.GemURL.Path)
+		} else {
+			return true
+		}
 	} else {
 		return true
 	}
