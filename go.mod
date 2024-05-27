@@ -1,6 +1,8 @@
 module github.com/JVMerkle/gemportal
 
-go 1.16
+go 1.21
+
+toolchain go1.22.3
 
 require (
 	code.rocketnine.space/tslocum/gmitohtml v1.0.5
@@ -12,4 +14,12 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sirupsen/logrus v1.9.3
 	github.com/temoto/robotstxt v1.1.3-0.20220411224903-a68aeca94fff
+)
+
+require (
+	github.com/aymerick/douceur v0.2.0 // indirect
+	github.com/gorilla/css v1.0.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 )
