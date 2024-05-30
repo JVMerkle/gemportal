@@ -20,6 +20,7 @@ type Context struct {
 	Cfg Config
 
 	Insecure        bool
+	Raw             bool
 	GemError        string
 	GemInputRequest string // Input data (user value)
 	GemInputMeta    string // Input data description

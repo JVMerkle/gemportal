@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Julian Merkle <me@jvmerkle.de>
+// SPDX-FileCopyrightText: 2021-2024 Julian Merkle <me@jvmerkle.de>
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
@@ -23,6 +23,7 @@ import (
 	"github.com/patrickmn/go-cache"
 	log "github.com/sirupsen/logrus"
 	"github.com/temoto/robotstxt"
+	"mime"
 )
 
 var urlRegexp *regexp.Regexp
@@ -74,6 +75,9 @@ func (gp *GemPortal) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		var reject bool
 		switch k {
 		case "insecure":
+		case "raw":
+			ctx.Raw = true
+			reject = true
 		case "query":
 			ctx.GemInputRequest = v[0]
 			reject = true
@@ -226,8 +230,30 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 		return
 	}
 
-	html, err := gp.gemResponseToHTML(ctx, res)
+	mediatype, _, err := mime.ParseMediaType(res.Meta)
 	if err != nil {
+		gp.errResp(ctx, fmt.Sprintf("Gemini upstream set bad MIME type: %s", gemini.StatusText(res.Status)), http.StatusBadGateway)
+		return
+	}
+
+	// Image handling
+	if strings.HasPrefix(mediatype, "image/") {
+		if ctx.Raw {
+			ctx.w.Header().Set("Content-Type", res.Meta)
+			_ = ioLimitedCopy(ctx.w, res.Body, gp.cfg.RespMemLimitImg)
+		} else {
+			imgSrc := ctx.Cfg.BaseHREF + ctx.r.URL.Path + "?raw"
+			ctx.GemContent = "<img src=\"" + imgSrc + "\" alt=\"" + ctx.GemURL.String() + "\">"
+			gp.executeIndexTemplate(ctx)
+		}
+		return
+	}
+
+	html, err := gp.gemResponseToSafeHTML(ctx, res)
+	if err == ErrGeminiResponseLimit {
+		gp.errResp(ctx, "Response limit reached", http.StatusInternalServerError)
+		return
+	} else if err != nil {
 		gp.errResp(ctx, "Error processing Gemini response", http.StatusInternalServerError)
 		return
 	}
@@ -274,6 +300,8 @@ func (gp *GemPortal) errResp(ctx *Context, errorText string, httpStatusCode int)
 		ctx.GemError = errorText
 	}
 
+	ctx.GemError = bluemonday.StrictPolicy().Sanitize(ctx.GemError)
+
 	if httpStatusCode >= 500 {
 		log.Warnf("Replying with '%s' on requesting '%s': %s", http.StatusText(httpStatusCode), ctx.GemURL.String(), errorText)
 	}
@@ -283,41 +311,23 @@ func (gp *GemPortal) errResp(ctx *Context, errorText string, httpStatusCode int)
 // executeIndexTemplate executes the given Context with the index template.
 // panics if an error occures during template execution.
 func (gp *GemPortal) executeIndexTemplate(ctx *Context) {
+	ctx.w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	err := gp.indexTemplate.Execute(ctx.w, ctx)
 	if err != nil {
 		panic(err)
 	}
 }
 
-// gemResponseToString reads gemtext to a length limited string (30MiB)
-func (gp *GemPortal) gemResponseToString(res *gemini.Response) (string, error) {
-	buf := &bytes.Buffer{}
-
-	limit := gp.cfg.RespMemLimit
-
-	n, err := io.CopyN(buf, res.Body, limit)
-	if err != nil && !errors.Is(err, io.EOF) {
-		return "", err
-	}
-
-	if n == limit {
-		log.Warnf("Limit reached (%d bytes) with a Gemini response", limit)
-		return "", ErrGeminiResponseLimit
-	}
-
-	return buf.String(), nil
-}
-
-// gemResponseToHTML turns Gemtext to safe HTML and rewrites
+// gemResponseToSafeHTML turns Gemtext to safe HTML and rewrites
 // all Gemini URLs to hit the application server.
-func (gp *GemPortal) gemResponseToHTML(ctx *Context, res *gemini.Response) (string, error) {
-
-	s, err := gp.gemResponseToString(res)
+func (gp *GemPortal) gemResponseToSafeHTML(ctx *Context, res *gemini.Response) (string, error) {
+	buf := &bytes.Buffer{}
+	err := ioLimitedCopy(buf, res.Body, gp.cfg.RespMemLimit)
 	if err != nil {
 		return "", err
 	}
 
-	s = urlRegexp.ReplaceAllStringFunc(s, func(s string) string {
+	s := urlRegexp.ReplaceAllStringFunc(buf.String(), func(s string) string {
 		oldURL := s
 
 		// Strip `=> +`
