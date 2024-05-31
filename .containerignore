@@ -1,6 +1,6 @@
-.dockerignore
+.containerignore
 .env
 .env.example
-Dockerfile
+Containerfile
 LICENSE
 README.md
