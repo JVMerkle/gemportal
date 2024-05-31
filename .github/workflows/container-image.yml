@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Container image CI
 
 on:
   push:
@@ -7,12 +7,10 @@ on:
     branches: [ main ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v2
-      - name: Build the Docker image
-        run: docker build . --file Containerfile --tag jvmerkle/gemportal:$(date +%s)
+      - name: Build the container image
+        run: podman build --tag jvmerkle/gemportal:$(date +%s) .
