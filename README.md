@@ -14,7 +14,7 @@ source code and/or a proper license.
 
 - Variable base HREF support
 - Enable/Disable TLS checks
-- Input support
+- Input and image support
 - Follow redirects
 - Respect robots.txt's
 - Dark theme support

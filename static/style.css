@@ -93,6 +93,11 @@ button {
     font-family: 'Lucida Console', monospace;
 }
 
+.gem-content img {
+    max-height: 100%;
+    max-width: 100%;
+}
+
 .source-link:hover {
     text-decoration: underline;
 }

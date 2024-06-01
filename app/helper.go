@@ -6,6 +6,8 @@ package app
 
 import (
 	"errors"
+	log "github.com/sirupsen/logrus"
+	"io"
 	"net"
 	"net/url"
 	"path"
@@ -103,4 +105,19 @@ func gemParseURL(ctx *Context, gemURL string) (string, error) {
 	}
 
 	return gemURL, nil
+}
+
+// ioLimitedCopy copies at most N bytes (configurable) from the reader to the writer
+func ioLimitedCopy(w io.Writer, r io.Reader, limit int64) error {
+	n, err := io.CopyN(w, r, limit)
+	if err != nil && !errors.Is(err, io.EOF) {
+		return err
+	}
+
+	if n == limit {
+		log.Debugf("Limit reached (%d bytes) with a Gemini response", limit)
+		return ErrGeminiResponseLimit
+	}
+
+	return nil
 }
