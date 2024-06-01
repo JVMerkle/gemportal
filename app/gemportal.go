@@ -238,27 +238,28 @@ func (gp *GemPortal) ServeGemini2HTML(ctx *Context) {
 
 	// Image handling
 	if strings.HasPrefix(mediatype, "image/") {
+		// Stream the image
 		if ctx.Raw {
 			ctx.w.Header().Set("Content-Type", res.Meta)
+			ctx.w.Header().Set("Cache-Control", "max-age=86400") // 24h
 			_ = ioLimitedCopy(ctx.w, res.Body, gp.cfg.RespMemLimitImg)
-		} else {
+			return
+		} else { // Send the <img> tag
 			imgSrc := ctx.Cfg.BaseHREF + ctx.r.URL.Path + "?raw"
 			ctx.GemContent = "<img src=\"" + imgSrc + "\" alt=\"" + ctx.GemURL.String() + "\">"
-			gp.executeIndexTemplate(ctx)
 		}
-		return
+	} else {
+		ctx.GemContent, err = gp.gemResponseToSafeHTML(ctx, res)
+		if err == ErrGeminiResponseLimit {
+			gp.errResp(ctx, "Response limit reached", http.StatusInternalServerError)
+			return
+		} else if err != nil {
+			gp.errResp(ctx, "Error processing Gemini response", http.StatusInternalServerError)
+			return
+		}
 	}
 
-	html, err := gp.gemResponseToSafeHTML(ctx, res)
-	if err == ErrGeminiResponseLimit {
-		gp.errResp(ctx, "Response limit reached", http.StatusInternalServerError)
-		return
-	} else if err != nil {
-		gp.errResp(ctx, "Error processing Gemini response", http.StatusInternalServerError)
-		return
-	}
-
-	ctx.GemContent = html
+	ctx.w.Header().Set("Cache-Control", "max-age=86400") // 24h
 	gp.executeIndexTemplate(ctx)
 }
 
