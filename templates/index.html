@@ -51,9 +51,9 @@
        rel="noreferrer noopener">gemportal</a>
     {{ if .Cfg.GetAppBuildMeta }}
     <span class="version"
-          title="{{ .Cfg.GetAppVersion }}+{{ .Cfg.GetAppBuildMeta }}">v{{ .Cfg.GetAppVersion }}</span>
+          title="{{ .Cfg.GetAppBuildMeta }}">{{ .Cfg.GetAppVersion }}</span>
     {{ else }}
-    <span class="version" title="{{ .Cfg.GetAppVersion }}">v{{ .Cfg.GetAppVersion }}</span>
+    <span class="version" title="{{ .Cfg.GetAppVersion }}">{{ .Cfg.GetAppVersion }}</span>
     {{ end }}
 </footer>
 </body>

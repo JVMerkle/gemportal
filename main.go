@@ -16,8 +16,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const AppVersion = "1.0.3"
-
 //go:embed static/style.css
 //go:embed static/app.js
 var staticFS embed.FS
@@ -26,7 +24,7 @@ var staticFS embed.FS
 var templateFS embed.FS
 
 func main() {
-	cfg, err := app.GetConfig(AppVersion)
+	cfg, err := app.GetConfig()
 	if err != nil {
 		log.Fatalf("Could not load config: %s", err.Error())
 	}
