@@ -19,8 +19,8 @@ var (
 
 // Injected with linker flags
 var (
-	gitHash   string
-	buildTime string
+	gitDescribe   string
+	buildTime     string
 )
 
 type Config struct {
@@ -47,7 +47,7 @@ func (c *Config) GetAppBuildMeta() string {
 }
 
 // GetConfig loads and checks the application configuration
-func GetConfig(appVersion string) (*Config, error) {
+func GetConfig() (*Config, error) {
 	var cfg Config
 
 	// Load environment variables from a ".env" file, if exists
@@ -58,17 +58,17 @@ func GetConfig(appVersion string) (*Config, error) {
 		return nil, err
 	}
 
-	if len(gitHash) == 0 || len(buildTime) == 0 {
-		log.Warn("Link time definitions missing (GitHash/Buildtime)")
+	if len(gitDescribe) == 0 || len(buildTime) == 0 {
+		log.Warn("Link time definitions missing (gitDescribe/Buildtime)")
 	}
 
 	if len(cfg.AppDesc) == 0 {
 		cfg.AppDesc = template.HTML("<b>Simple</b> Gemini HTTP portal for port " + cfg.DefaultPort + ".")
 	}
 
-	buildMeta := []string{gitHash, buildTime}
+	buildMeta := []string{gitDescribe, buildTime}
 
-	cfg.appVersion = appVersion
+	cfg.appVersion = gitDescribe
 
 	for i := 0; i < len(buildMeta); i++ {
 		cfg.appBuildMeta += buildMeta[i]

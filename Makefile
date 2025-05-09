@@ -1,10 +1,10 @@
 GO ?= go
 PODMAN ?= podman
 
-GITHASH := $(shell git rev-parse --short HEAD)
+GITDESCRIBE := $(shell git describe)
 BUILDTIME := $(shell date -u '+%Y%m%dT%H%M%SZ')
 
-GOLDFLAGS += -X "github.com/JVMerkle/gemportal/app.gitHash=$(GITHASH)"
+GOLDFLAGS += -X "github.com/JVMerkle/gemportal/app.gitDescribe=$(GITDESCRIBE)"
 GOLDFLAGS += -X "github.com/JVMerkle/gemportal/app.buildTime=$(BUILDTIME)"
 GOLDFLAGS += -w -s
 GOFLAGS += -ldflags "$(GOLDFLAGS)"
